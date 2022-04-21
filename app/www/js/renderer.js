@@ -4,11 +4,23 @@
 let pages = {};
 pages.login = {
     show: function (data) { console.log('login.show()'); },
-    hide: function () { console.log('login.hide()'); }
+    hide: function () { console.log('login.hide()'); },
+    register: function () {
+        console.log('login.register()');
+        navigateTo('register');
+    },
+    login: function () {
+        console.log('login.home()');
+        navigateTo('home');
+    },
 };
 pages.register = {
     show: function (data) { console.log('register.show()'); },
-    hide: function () { console.log('register.hide()'); }
+    hide: function () { console.log('register.hide()'); },
+    login: function () {
+        console.log('register.login()');
+        navigateTo('login');
+    },
 };
 pages.home = {
     show: function (data) { console.log('home.show()'); },
@@ -55,6 +67,7 @@ const fs = require('fs');
 const pathViews = 'app/www';
 let currentPage = null;
 
+//Funcion para naver entre las diferentes vistas
 function navigateTo(page, data, cb) {
     console.log(`navigateTo(${page}, ${data})`);
     if (!pages[page]) {

@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html style="height:100%">
+
+<head>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" href="styles.css">
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body style="height:100%">
+    <div class="parallax-container">
+        <div class="parallax">
+            <img src="images/fondo-restaurante.jpg">
+        </div>
+    </div>
+    <ul id="slide-out" class="sidenav sidenav-fixed">
+        <li>
+            <div class="user-view">
+                <div style="display:flex; justify-content: center;">
+                    <i class="large material-icons prefix">account_circle</i>
+                </div>
+                <!-- Esto se supone que mostrara el nombre del usuario? -->
+                <a href="#name" id="lblUser"><span class="white-text name"></span></a>
+                <a href="#email" id="lblEmail"><span class="white-text email"></span></a>
+            </div>
+        </li>
+        <li><a href="#!" onclick="pages.home.home()" class="waves-effect waves-light btn patata"><i class="material-icons left">home</i>Restaurant</a></li>
+        <li><a href="#!" onclick="pages.home.explore()" class="waves-effect waves-light btn patata"><i class="material-icons left">person</i>Profile</a></li>
+        <li><a href="#!" onclick="pages.register.login()" class="waves-effect waves-light btn patata"><i class="material-icons left">exit_to_app</i>Exit</a></li>
+    </ul>
+
+
+    <!-- Modal Structure -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <div class="row">
+                <div class="input-field col s12">
+                    <input placeholder="¿Que esta pasano?" id="txtTweet" type="text" class="validate">
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <a href="#!" class="modal-close waves-effect waves-green btn-flat" onclick="pages.home.sendTweet()"> <i
+                    class="medium material-icons">border_color</i></a>
+        </div>
+    </div>
+
+    <main>
+        <nav>
+            <div class="nav-wrapper">
+                <a href="#" data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+                <form>
+                    <div class="input-field">
+                        <input id="txtSearch" type="search" required>
+                        <label class="label-icon" for="search"><i class="material-icons">search</i></label>
+                        <i class="material-icons">close</i>
+                    </div>
+                </form>
+            </div>
+        </nav>
+
+        <div id="tweets" onload="pages.home.refresh()"></div>
+    </main>
+
+
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var elems = document.querySelectorAll('.sidenav');
+            var instances = M.Sidenav.init(elems, {});
+        });
+        document.addEventListener('DOMContentLoaded', function () {
+            var elems = document.querySelectorAll('.modal');
+            var instances = M.Modal.init(elems, options);
+        });
+        document.addEventListener('DOMContentLoaded', function () {
+            var elems = document.querySelectorAll('.parallax');
+            var instances = M.Parallax.init(elems, options);
+        });
+    </script>
+</body>
+    <style>
+        .patata{
+            background-color:#3454D1 !important;
+        }
+    </style>
+</html>
