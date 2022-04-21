@@ -1,0 +1,11 @@
+
+    .if-i {
+        border: 1px solid blue !important;
+        border-radius: 25px !important;
+    }
+
+    .if-l {
+        color: blue !important;
+        text-align: center !important;
+        padding-bottom: 10px !important;
+    }

@@ -1,0 +1,16 @@
+{
+  "name": "e-order",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app/main.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "daniel morales estrella",
+  "license": "ISC",
+  "dependencies": {
+    "electron": "^10.4.7",
+    "materialize-css": "^1.0.0"
+  }
+}
