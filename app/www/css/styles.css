@@ -9,3 +9,21 @@
         text-align: center !important;
         padding-bottom: 10px !important;
     }
+    .li-h{
+        background-color:#3454D1 !important;
+        border-radius: 10px !important;
+    }
+
+    @media only screen and (max-width : 992px) {
+        header, main, footer {
+          padding-left: 0;
+        }
+    
+        .nav-wrapper{
+            display: flex;
+        }
+    
+        .nav-wrapper form{
+            width:100%;
+        }
+      }

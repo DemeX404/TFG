@@ -24,7 +24,19 @@ pages.register = {
 };
 pages.home = {
     show: function (data) { console.log('home.show()'); },
-    hide: function () { console.log('home.hide()'); }
+    hide: function () { console.log('home.hide()'); },
+    login: function () {
+        console.log('home.login()');
+        navigateTo('home');
+    },
+    home: function () {
+        console.log('home.home()');
+        navigateTo('home');
+    },
+    profile: function () {
+        console.log('home.profile()');
+        navigateTo('profile');
+    },
 };
 pages.home = {
     show: function (data) { console.log('home.show()'); },
@@ -61,6 +73,10 @@ pages.kitchen = {
 pages.diningRoom = {
     show: function (data) { console.log('diningRoom.show()'); },
     hide: function () { console.log('diningRoom.hide()'); }
+};
+pages.log2 = {
+    show: function (data) { console.log('log2.show()'); },
+    hide: function () { console.log('log2.hide()'); }
 };
 
 const fs = require('fs');

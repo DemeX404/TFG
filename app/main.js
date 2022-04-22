@@ -8,7 +8,7 @@ let win = null;
 app.on('ready', function () {
     win = new BrowserWindow({
         width: 800, height: 600,
-        webPreferences: { nodeIntegration: true, enableRemoteModule: true, contextIsolation: false }
+        webPreferences: { nodeIntegration: true, enableRemoteModule: true}
     });
     win.loadURL(`file://${__dirname}/www/index.html`);
 });
