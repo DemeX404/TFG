@@ -13,6 +13,7 @@
 </head>
 
 <body style="height:100%">
+    <!-- Sidenav -->
     <ul id="slide-out" class="sidenav sidenav-fixed" style="background-color: #efefef;">
         <li>
             <div class="user-view">
@@ -31,48 +32,203 @@
         <li><a href="#!" onclick="pages.register.login()" class="waves-effect waves-light btn li-h"
                 style="margin-top: 20%;"><i class="material-icons right">exit_to_app</i>Exit</a></li>
     </ul>
-
-    <main>
-        <nav>
-            <div class="nav-wrapper">
-                <a href="#!" data-target="slide-out" class="sidenav-trigger "><i class="material-icons">menu</i></a>
+    <!-- Modal que salta al pedir -->
+    <div id="modal1" class="modal">
+        <div class="modal-content">
+            <div class="col s12 m6">
+                <div class="card">
+                    <div class="card-image">
+                        <img src="images/1entrante.jpg" style="width: 75%; margin-left: auto; margin-right: auto;">
+                    </div>
+                    <div class="divider"></div>
+                    <div class="card-content">
+                        <div style="color: #3454D1;">
+                            <div>
+                                <h5>Starter 1</h5>
+                                <span style="margin-left: 25px">Rico plato con </span>
+                            </div>
+                        </div>
+                        <div class="divider" style="margin: 20px;"></div>
+                        <div style="color: #3454D1;">
+                            <div>
+                                <h5>Add Note</h5>
+                                <form class="col s12" style="margin-left: 25px">
+                                    <div class="input-field col s12">
+                                        <textarea id="textarea1" class="materialize-textarea"></textarea>
+                                        <label for="textarea1">Note</label>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-action"
+                        style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <a class="waves-teal btn-flat" style="margin: 0px; color: #070707;">
+                                <i class="material-icons">remove</i>
+                            </a>
+                            <input type="number" style="width: 50%;border-style: groove; text-align: center;" value="0">
+                            <a class="waves-teal btn-flat" style="margin: 0px; color: #070707;">
+                                <i class="material-icons">add</i>
+                            </a>
+                        </div>
+                        <!-- Hacer algo aqui para que se guarda lo que se pide -->
+                        <a href="#" onclick="pages.login.login()" class="waves-effect waves-light btn"
+                            style="width:25%;background-color:#3454D1;">Ok</a>
+                    </div>
+                </div>
             </div>
-        </nav>
-    </main>
-
-    <div class="row">
-        <div class="col s12">
-            <ul class="tabs">
-                <li class="tab col s3"><a href="#starter"> Starter</a></li>
-                <li class="tab col s3"><a class="active" href="#test2">Test 2</a></li>
-                <li class="tab col s3"><a href="#test3">Test 3</a></li>
-                <li class="tab col s3"><a href="#test4">Test 4</a></li>
-            </ul>
         </div>
-        <div id="starter" class="col s12">
-            <div class="section">
-                <h4>Starter</h4>
-            </div>
-            <div class="divider"></div>
-            <div class="section">
-                <h5>Section 1</h5>
-                <p>Stuff</p>
-                <img class="responsive-img" src="images/1entrante.jpg">
-            </div>
-            <div class="divider"></div>
-            <div class="section">
-                <h5>Section 2</h5>
-                <p>Stuff</p>
-            </div>
-            <div class="divider"></div>
-            <div class="section">
-                <h5>Section 3</h5>
-                <p>Stuff</p>
-            </div>
+    </div>
+
+    <div class="card">
+        <div class="card-content card small" style="padding: 0px;">
+            <!-- Boton de trigger del sidenav -->
+            <a class="btn-floating btn-large halfway-fab waves-effect waves-light sidenav-trigger"
+                style="left: 0px; top: 0px; color: #26A69A" data-target="slide-out">
+                <i class="material-icons">menu</i>
+            </a>
+            <img style="width:100%; max-height:100%;" src="images/fondo-restaurante.jpg">
         </div>
-        <div id="test2" class="col s12">Test 2</div>
-        <div id="test3" class="col s12">Test 3</div>
-        <div id="test4" class="col s12">Test 4</div>
+        <!-- Tabs con su respectivo contenido -->
+        <div class="card-tabs" style="background-color: #EFEFEF;">
+            <div class="col s12">
+                <ul class="tabs tabs-fixed-width">
+                    <li class="tab col s3"><a href="#starter" style="color: #3454d1;"> Starter</a></li>
+                    <li class="tab col s3"><a href="#main" style="color: #3454d1;">Main Dishes</a></li>
+                    <li class="tab col s3"><a href="#drinks" style="color: #3454d1;">Drinks</a></li>
+                    <li class="tab col s3"><a href="#dessert" style="color: #3454d1;">Dessert</a></li>
+                </ul>
+            </div>
+            <div id="starter" class="col s12">
+                <!-- Solo he hecho este primer caso debido a que esto se genera automaticamente cuando
+                se crean nuevas opciones -->
+                <div class="section">
+                    <h4 style="color: #3454D1;">Starter</h4>
+                </div>
+                <div class="divider"></div>
+                <!-- Modal Trigger -->
+                <a class="modal-trigger" href="#modal1">
+                    <div class="section flex-h" style="color: #3454D1;">
+                        <div>
+                            <h5>Starter 1</h5>
+                            <span>Rico plato con </span>
+                        </div>
+                        <img class="responsive-img" style="width: 250px; align-self: flex-end;"
+                            src="images/1entrante.jpg">
+                    </div>
+                </a>
+
+
+                <div class="divider"></div>
+                <div class="section flex-h">
+                    <div>
+                        <h5>Section 2</h5>
+                        <span>Stuff</span>
+                    </div>
+                    <img class="responsive-img" style="width: 250px; align-self: flex-end;" src="images/1entrante.jpg">
+                </div>
+                <div class="divider"></div>
+                <div class="section flex-h">
+                    <div>
+                        <h5>Section 3</h5>
+                        <span>Stuff</span>
+                    </div>
+                    <img class="responsive-img" style="width: 250px; align-self: flex-end;" src="images/1entrante.jpg">
+                </div>
+            </div>
+            <div id="main" class="col s12">
+                <div class="section">
+                    <h4>Main Dishes</h4>
+                </div>
+                <div class="divider"></div>
+                <div class="section flex-h">
+                    <div>
+                        <h5>Main 1</h5>
+                        <span>Rico plato con </span>
+                    </div>
+                    <img class="responsive-img" style="width: 250px; align-self: flex-end;" src="images/1entrante.jpg">
+                </div>
+                <div class="divider"></div>
+                <div class="section flex-h">
+                    <div>
+                        <h5>Main 2</h5>
+                        <span>Stuff</span>
+                    </div>
+                    <img class="responsive-img" style="width: 250px; align-self: flex-end;" src="images/1entrante.jpg">
+                </div>
+                <div class="divider"></div>
+                <div class="section flex-h">
+                    <div>
+                        <h5>Main 3</h5>
+                        <span>Stuff</span>
+                    </div>
+                    <img class="responsive-img" style="width: 250px; align-self: flex-end;" src="images/1entrante.jpg">
+                </div>
+            </div>
+            <div id="drinks" class="col s12">
+                <div class="section">
+                    <h4>Drinks</h4>
+                </div>
+                <div class="divider"></div>
+                <div class="section flex-h">
+                    <div>
+                        <h5>Drink 1</h5>
+                        <span>Rico plato con </span>
+                    </div>
+                    <img class="responsive-img" style="width: 250px; align-self: flex-end;" src="images/1entrante.jpg">
+                </div>
+                <div class="divider"></div>
+                <div class="section flex-h">
+                    <div>
+                        <h5>Drink 2</h5>
+                        <span>Stuff</span>
+                    </div>
+                    <img class="responsive-img" style="width: 250px; align-self: flex-end;" src="images/1entrante.jpg">
+                </div>
+                <div class="divider"></div>
+                <div class="section flex-h">
+                    <div>
+                        <h5>Drink 3</h5>
+                        <span>Stuff</span>
+                    </div>
+                    <img class="responsive-img" style="width: 250px; align-self: flex-end;" src="images/1entrante.jpg">
+                </div>
+            </div>
+            <div id="dessert" class="col s12">
+                <div class="section">
+                    <h4>Dessert</h4>
+                </div>
+                <div class="divider"></div>
+                <div class="section flex-h">
+                    <div>
+                        <h5>Dessert 1</h5>
+                        <span>Rico plato con </span>
+                    </div>
+                    <img class="responsive-img" style="width: 250px; align-self: flex-end;" src="images/1entrante.jpg">
+                </div>
+                <div class="divider"></div>
+                <div class="section flex-h">
+                    <div>
+                        <h5>Dessert 2</h5>
+                        <span>Stuff</span>
+                    </div>
+                    <img class="responsive-img" style="width: 250px; align-self: flex-end;" src="images/1entrante.jpg">
+                </div>
+                <div class="divider"></div>
+                <div class="section flex-h">
+                    <div>
+                        <h5>Dessert 3</h5>
+                        <span>Stuff</span>
+                    </div>
+                    <img class="responsive-img" style="width: 250px; align-self: flex-end;" src="images/1entrante.jpg">
+                </div>
+            </div>
+            <div style="display: flex; justify-content: center; margin-top: 20px;">
+                <a onclick="pages.home.order()" class="waves-effect waves-light btn" style="width: 50%; background-color:#3454D1; color:#EFEFEF">View Basket</a>
+            </div>
+
+        </div>
     </div>
 
     <!-- Compiled and minified JavaScript -->
@@ -86,6 +242,10 @@
         document.addEventListener('DOMContentLoaded', function () {
             var elems = document.querySelectorAll('.tabs');
             var instance = M.Tabs.init(elems, {});
+        });
+        document.addEventListener('DOMContentLoaded', function () {
+            var elems = document.querySelectorAll('.modal');
+            var instances = M.Modal.init(elems, {});
         });
 
     </script>

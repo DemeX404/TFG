@@ -37,10 +37,10 @@ pages.home = {
         console.log('home.profile()');
         navigateTo('profile');
     },
-};
-pages.home = {
-    show: function (data) { console.log('home.show()'); },
-    hide: function () { console.log('home.hide()'); }
+    order: function () {
+        console.log('home.order()');
+        navigateTo('order');
+    },
 };
 pages.profile = {
     show: function (data) { console.log('profile.show()'); },

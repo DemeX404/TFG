@@ -1,29 +1,68 @@
+.if-i {
+    border: 1px solid blue !important;
+    border-radius: 25px !important;
+}
 
-    .if-i {
-        border: 1px solid blue !important;
-        border-radius: 25px !important;
+.if-l {
+    color: blue !important;
+    text-align: center !important;
+    padding-bottom: 10px !important;
+}
+
+.li-h {
+    background-color: #3454D1 !important;
+    border-radius: 10px !important;
+}
+
+.flex-h {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    flex-direction: row;
+}
+
+/*css for tabs*/
+/*Text color on hover*/
+.tabs .tab a:hover {
+    background-color: #EFEFEF;
+}
+
+/*Background and text color when a tab is active*/
+.tabs .tab a.active {
+    background-color: #EFEFEF;
+}
+
+/*Color of underline*/
+.tabs .indicator {
+    background-color: #070707;
+}
+
+/* label focus color */
+.input-field input[type=text]:focus+label,
+.materialize-textarea:focus:not([readonly])+label {
+    color: #005eed !important;
+}
+
+/* label underline focus color */
+.input-field input[type=text]:focus,
+.materialize-textarea:focus:not([readonly]) {
+    border-bottom: 1px solid #005eed !important;
+    box-shadow: 0 1px 0 0 #005eed !important;
+}
+
+@media only screen and (max-width : 992px) {
+
+    header,
+    main,
+    footer {
+        padding-left: 0;
     }
 
-    .if-l {
-        color: blue !important;
-        text-align: center !important;
-        padding-bottom: 10px !important;
-    }
-    .li-h{
-        background-color:#3454D1 !important;
-        border-radius: 10px !important;
+    .nav-wrapper {
+        display: flex;
     }
 
-    @media only screen and (max-width : 992px) {
-        header, main, footer {
-          padding-left: 0;
-        }
-    
-        .nav-wrapper{
-            display: flex;
-        }
-    
-        .nav-wrapper form{
-            width:100%;
-        }
-      }
+    .nav-wrapper form {
+        width: 100%;
+    }
+}

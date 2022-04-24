@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html style="height:100%">
+
+<head>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body style="height:100%">
+    <!-- WIP CON EL PLACEHOLDER YA TENGO LOS LABEL ARRIBA Y COMO EN TEORIA TODOS LOS CAMPOS ESTAN RELLENADOS
+    NO HAY PROBLEMA, FALTA DAR COLOR Y CENTRAR LOS LABEL -->
+
+    <!-- Sidenav -->
+    <ul id="slide-out" class="sidenav sidenav-fixed" style="background-color: #efefef;">
+        <li>
+            <div class="user-view">
+                <div style="display:flex; justify-content: center;">
+                    <i class="large material-icons prefix">account_circle</i>
+                </div>
+                <!-- Esto se supone que mostrara el nombre del usuario? -->
+                <a href="#name" id="lblUser"><span class="white-text name"></span></a>
+                <a href="#email" id="lblEmail"><span class="white-text email"></span></a>
+            </div>
+        </li>
+        <li><a href="#!" onclick="pages.home.home()" class="waves-effect waves-light btn li-h"><i
+                    class="material-icons right">home</i>Restaurant</a></li>
+        <li><a href="#!" onclick="pages.home.profile()" class="waves-effect waves-light btn li-h"><i
+                    class="material-icons right">person</i>Profile</a></li>
+        <li><a href="#!" onclick="pages.register.login()" class="waves-effect waves-light btn li-h"
+                style="margin-top: 20%;"><i class="material-icons right">exit_to_app</i>Exit</a></li>
+    </ul>
+
+    <div class="container">
+        <form>
+            <div style="display: flex; justify-content: space-between;">
+                <a href="#" data-target="slide-out" class="sidenav-trigger">
+                    <i class="material-icons" style="margin-top: 40px; color:#070707;">menu</i>
+                </a>
+                <div style="margin-top: 10%;">
+                    <div style="display:flex; justify-content: center;">
+                        <i class="large material-icons prefix">person</i>
+                    </div>
+                    <div style="display:flex; justify-content: center;">
+                        <div class="file-field input-field">
+                            <a style="font-size: 12px;">
+                                <span>Edit &nbsp</span>
+                                <input type="file">
+                            </a>
+                            <i style="font-size: 12px;" class="material-icons prefix">create</i>
+                        </div>
+
+                    </div>
+                </div>
+                <a href="#" onclick="pages.register.login()" class="waves-effect waves-light btn"
+                    style="background-color:#3454D1; margin-top: 5%;"><i
+                        class="material-icons right">save</i>Register</a>
+            </div>
+            <div>
+                <div class="row">
+                    <div class="input-field col s6">
+                        <label>Name</label>
+                        <input id="name" type="text" placeholder="patatas" style="border-style: groove">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s6">
+                        <label>Surname</label>
+                        <input id="surname" type="text" placeholder="patatas" style="border-style: groove">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s6">
+                        <label>Email</label>
+                        <input id="email" type="text" placeholder="patatas" style="border-style: groove">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s6">
+                        <label>Password</label>
+                        <input id="password" type="password" placeholder="patatas" style="border-style: groove">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s6">
+                        <label>Phone</label>
+                        <input id="phone" type="tel" class="if-i" style="border-style: groove">
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var elems = document.querySelectorAll('.sidenav');
+            var instances = M.Sidenav.init(elems, {});
+        });
+    </script>
+</body>
+
+</html>
