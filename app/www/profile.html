@@ -12,8 +12,6 @@
 </head>
 
 <body style="height:100%">
-    <!-- WIP CON EL PLACEHOLDER YA TENGO LOS LABEL ARRIBA Y COMO EN TEORIA TODOS LOS CAMPOS ESTAN RELLENADOS
-    NO HAY PROBLEMA, FALTA DAR COLOR Y CENTRAR LOS LABEL -->
 
     <!-- Sidenav -->
     <ul id="slide-out" class="sidenav sidenav-fixed" style="background-color: #efefef;">
@@ -27,11 +25,11 @@
                 <a href="#email" id="lblEmail"><span class="white-text email"></span></a>
             </div>
         </li>
-        <li><a href="#!" onclick="pages.home.home()" class="waves-effect waves-light btn li-h"><i
+        <li><a href="#!" onclick="pages.profile.home()" class="waves-effect waves-light btn li-h"><i
                     class="material-icons right">home</i>Restaurant</a></li>
-        <li><a href="#!" onclick="pages.home.profile()" class="waves-effect waves-light btn li-h"><i
+        <li><a href="#!" onclick="pages.profile.profile()" class="waves-effect waves-light btn li-h"><i
                     class="material-icons right">person</i>Profile</a></li>
-        <li><a href="#!" onclick="pages.register.login()" class="waves-effect waves-light btn li-h"
+        <li><a href="#!" onclick="pages.profile.login()" class="waves-effect waves-light btn li-h"
                 style="margin-top: 20%;"><i class="material-icons right">exit_to_app</i>Exit</a></li>
     </ul>
 
@@ -58,9 +56,9 @@
                 </div>
                 <a href="#" onclick="pages.register.login()" class="waves-effect waves-light btn"
                     style="background-color:#3454D1; margin-top: 5%;"><i
-                        class="material-icons right">save</i>Register</a>
+                        class="material-icons right">save</i>Save</a>
             </div>
-            <div>
+            <div style="padding-left: 25%;">
                 <div class="row">
                     <div class="input-field col s6">
                         <label>Name</label>
@@ -88,7 +86,7 @@
                 <div class="row">
                     <div class="input-field col s6">
                         <label>Phone</label>
-                        <input id="phone" type="tel" class="if-i" style="border-style: groove">
+                        <input id="phone" type="tel" placeholder="patat" class="if-i" style="border-style: groove">
                     </div>
                 </div>
             </div>

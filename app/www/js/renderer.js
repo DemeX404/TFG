@@ -44,15 +44,40 @@ pages.home = {
 };
 pages.profile = {
     show: function (data) { console.log('profile.show()'); },
-    hide: function () { console.log('profile.hide()'); }
+    hide: function () { console.log('profile.hide()'); },
+    home: function () {
+        console.log('profile.home()');
+        navigateTo('home');
+    },
+    login: function () {
+        console.log('profile.login()');
+        navigateTo('login');
+    },
+    profile: function () {
+        console.log('profile.profile()');
+        navigateTo('profile');
+    },
 };
 pages.order = {
     show: function (data) { console.log('order.show()'); },
-    hide: function () { console.log('order.hide()'); }
+    hide: function () { console.log('order.hide()'); },
+    ticket: function () {
+        console.log('order.ticket()');
+        navigateTo('ticket');
+    },
+    home: function () {
+        console.log('order.home()');
+        navigateTo('home');
+    },
 };
 pages.ticket = {
+
     show: function (data) { console.log('ticket.show()'); },
-    hide: function () { console.log('ticket.hide()'); }
+    hide: function () { console.log('ticket.hide()'); },
+    home: function () {
+        console.log('ticket.home()');
+        navigateTo('home');
+    },
 };
 pages.owner = {
     show: function (data) { console.log('owner.show()'); },

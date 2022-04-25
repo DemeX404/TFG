@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html style="height:100%">
+
+<head>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body style="height:100%">
+
+    <div class="container">
+        <form>
+            <div class="card">
+                <div class="card-content">
+                    <h2 style="border-bottom: dotted; display: flex; justify-content: center;">Ticket</h2>
+                    <div class="container">
+                        <div class="row" style="border-bottom: dotted; margin-bottom: 5px;">
+                            <div class="col s3">
+                                <span>Product</span>
+                            </div>
+                            <div class="col s3" style="padding-left:15%">
+                                <span>Price</span>
+                            </div>
+                            <div class="col s3" style="padding-left:15%">
+                                <span>UD.</span>
+                            </div>
+                            <div class="col s3" style="padding-left:15%">
+                                <span>Total</span>
+                            </div>
+                        </div>
+                        <!-- Parte dinamica del ticket -->
+                        <div class="row" style="margin-bottom:5px; border-top: dotted;">
+                            <div class="col s3">
+                                <span>Product 1</span>
+                            </div>
+                            <div class="col s3" style="padding-left:15%">
+                                <span>1</span>
+                            </div>
+                            <div class="col s3" style="padding-left:15%">
+                                <span>10</span>
+                            </div>
+                            <div class="col s3" style="padding-left:15%">
+                                <span>10</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="divider" style="margin: 20px;"></div>
+                <div class="card-footer"
+                    style="display: flex;justify-content: space-around;align-items: center;padding-bottom: 10px;">
+                    <h5> Total </h5>
+                    <h5>10€</h5>
+                </div>
+                <h6 style="display: flex; justify-content: center; padding-bottom: 15px;">Payment Method</h6>
+                <div style="display: flex; justify-content: center; padding-bottom: 20px;">
+                    <a class="waves-effect waves-light btn" style="background: #EFEFEF; color: #070707">Cash</a>
+                    <a class="waves-effect waves-light btn" style="background: #EFEFEF; color: #070707">Card</a>
+                </div>
+                <a onclick="pages.ticket.home()" class="waves-teal btn-flat" style="display: flex; justify-content: center;">
+                    <i class="material-icons right large" style="font-size: 48px;">home</i>
+                </a>
+            </div>
+    </div>
+    </form>
+    </div>
+
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var elems = document.querySelectorAll('.sidenav');
+            var instances = M.Sidenav.init(elems, {});
+        });
+
+    </script>
+</body>
+
+</html>

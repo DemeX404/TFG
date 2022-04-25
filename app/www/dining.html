@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html style="height:100%">
+
+<head>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body style="height:100%">
+
+    <div class="container" style="border: ridge;">
+        <div style="display: flex; margin-left: 5%;">
+            <a href="#" onclick="pages.order.home()" style="margin-right: 10%;">
+                <i class="medium material-icons" style="margin-top: 40px; color:#070707;">exit_to_app</i>
+            </a>
+            <h1>Dining</h1>
+        </div>
+        <div class="divider"></div>
+        <h4 style="border-bottom: dotted; display: flex; justify-content: center;">Payments</h4>
+        <div class="container">
+            <div class="row" style="border-bottom: dotted; margin-bottom: 5px;">
+                <div class="col s3">
+                    <span>Table Nº</span>
+                </div>
+                <div class="col s3" style="padding-left:15%">
+                    <span>Method Payment</span>
+                </div>
+                <div class="col s3" style="padding-left:15%">
+                    <span>Total</span>
+                </div>
+            </div>
+            <!-- Parte dinamica del salon -->
+            <div class="row" style="margin-bottom:5px; border-top: dotted;">
+                <div class="col s3">
+                    <span>16</span>
+                </div>
+                <div class="col s3" style="padding-left:15%">
+                    <span>Cash</span>
+                </div>
+                <div class="col s3" style="padding-left:15%">
+                    <span>10</span>
+                </div>
+            </div>
+
+            <div class="divider" style="margin: 20px;"></div>
+            <div style="display: flex;justify-content: center;align-items: center;">
+                <h4 style="color:red">Kitchen</h4>
+                <i class="material-icons" style="padding-top: 3%; padding-left: 10px; color:red">warning</i>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var elems = document.querySelectorAll('.sidenav');
+            var instances = M.Sidenav.init(elems, {});
+        });
+    </script>
+</body>
+
+</html>

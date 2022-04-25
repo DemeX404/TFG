@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html style="height:100%">
+
+<head>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body style="height:100%">
+
+    <div class="container" style="border: ridge;">
+        <div style="display: flex; margin-left: 5%;">
+            <a href="#" onclick="pages.order.home()" style="margin-right: 10%;">
+                <i class="medium material-icons" style="margin-top: 40px; color:#070707;">exit_to_app</i>
+            </a>
+            <h1>KITCHEN</h1>
+        </div>
+        <div style="display: flex;justify-content: space-between;margin-left: 5%;margin-right: 5%;">
+            <label>
+                <input type="checkbox" />
+                <span style="text-decoration: underline;color: #070707;font-size: 24px;">Order 1</span>
+            </label>
+            <span>Nº Table 15</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; margin-left: 10%;">
+            <label>
+                <input type="checkbox" />
+                <span style="color: #070707;">Starter 1</span>
+                <i class="material-icons" style="vertical-align: middle;font-size: 20px; color:red">warning</i>
+            </label>
+            <label>
+                <input type="checkbox" />
+                <span style="color: #070707;">Drink 1</span>
+            </label>
+        </div>
+    </div>
+
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var elems = document.querySelectorAll('.sidenav');
+            var instances = M.Sidenav.init(elems, {});
+        });
+    </script>
+</body>
+
+</html>
