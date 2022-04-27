@@ -3,12 +3,14 @@ const MongoClient = mongodb.MongoClient;
 const url = 'mongodb://localhost:27017';
 
 /****   CUSTOMERS  ****/
+//Ok hay que añadir que al llamar la funcion se etiqueta el tipo de usuario
 function addClient(user, cb) {
     if (!user.name) cb(new Error('Property name missing'));
     else if (!user.surname) cb(new Error('Property surname missing'));
     else if (!user.email) cb(new Error('Property email missing'));
     else if (!user.password) cb(new Error('Property password missing'));
     else if (!user.phone) cb(new Error('Property phone missing'));
+    else if (!user.type) cb(new Error('Propery type missing'));
     else {
         MongoClient.connect(url, function (err, client) {
             if (err) cb(err);
@@ -25,7 +27,6 @@ function addClient(user, cb) {
                         if (err) _cb(err);
                         else if (_user) _cb(new Error('Customer already exists'));
                         else {
-                            user["type"] = "customer";
                             customers.insertOne(user, (err, result) => {
                                 if (err) _cb(err);
                                 else {
@@ -326,6 +327,36 @@ function addType(token, type, cb) {
     });
 
 }
+//Ok
+function updateType(typeID, newType, cb) {
+    MongoClient.connect(url, function (err, client) {
+        if (err) cb(err);
+        else {
+            console.log('connected.');
+            function _cb(err, result, result2) {
+                client.close();
+                cb(err, result, result2);
+            }
+
+            var db = client.db('e-order');
+            var col = db.collection('product');
+
+            let query = { _id: new mongodb.ObjectId(typeID) };
+            col.updateOne(query, {
+                $set: {
+                    "type": newType.type,
+                }
+            }, (err, _user) => {
+                if (err) _cb(err);
+                else {
+                    console.log('Update Finished');
+                }
+            });
+
+        }
+
+    });
+}
 
 //Para el type se puede crear un selector
 //Ok
@@ -354,6 +385,7 @@ function addProduct(token, newProduct, cb) {
                                 if (err) _cb(err);
                                 else if (_product) _cb(new Error('Product already exists'));
                                 else {
+                                    newProduct['sales'] = 0;
                                     product.insertOne(newProduct, (err, result) => {
                                         if (err) _cb(err);
                                         else {
@@ -374,7 +406,7 @@ function addProduct(token, newProduct, cb) {
 
 }
 
-//No se esta cambiando bien el id de los arrays
+//Ok
 function updateProduct(productID, product, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err);
@@ -391,14 +423,13 @@ function updateProduct(productID, product, cb) {
             let query = { _id: new mongodb.ObjectId(productID) };
             objectPr = new mongodb.ObjectId(productID);
 
-            col.updateOne({ lstPr: objectPr }, {
-                $pull: {"lstPr": productID}
+            col.updateOne({ lstPr: productID }, {
+                $pull: { "lstPr": productID }
             }, (err, _oldPr) => {
                 if (err) _cb(err);
                 else {
-                    console.log(objectPr);
                     col.updateOne({ type: product.typePr }, {
-                        $pull: { lstPr: productID }
+                        $push: { lstPr: productID }
                     }, (err, fake) => {
                         if (err) _cb(err);
                         else {
@@ -418,8 +449,104 @@ function updateProduct(productID, product, cb) {
                     });
                 }
             });
+        }
+
+    });
+}
+
+//Falta probar si funciona
+function deleteType(typeId, cb) {
+    MongoClient.connect(url, function (err, client) {
+        if (err) cb(err);
+        else {
+            console.log('connected.');
+            function _cb(err, result) {
+                client.close();
+                cb(err, result);
+            }
+
+            var db = client.db('e-order');
+            var col = db.collection('product');
+
+            //No se puede borrar el tipo si aun tiene productos asociados
+            objectPr = new mongodb.ObjectId(typeId);
+            col.findOne({ _id: objectPr }, (err, result) => {
+                if (err) _cb(err);
+                else {
+                    if (result.lstPr.size > 0) {
+                        _cb('Some product still asociated with this type')
+                    } else {
+                        col.deleteOne({ _id: objectPr }, (err, _result) => {
+                            if (err) _cb(err);
+                            else {
+                                _cb('Type deleted');
+                            }
+                        });
+                    }
+                }
+            })
+        }
+
+    });
+}
+
+//Ok Suelta on error:undefined pero funciona bien xD
+function deleteProduct(product, cb) {
+    MongoClient.connect(url, function (err, client) {
+        if (err) cb(err);
+        else {
+            console.log('connected.');
+            function _cb(err, result) {
+                client.close();
+                cb(err, result);
+            }
+
+            var db = client.db('e-order');
+            var col = db.collection('product');
+
+            objectPr = new mongodb.ObjectId(productId);
+            col.deleteOne({ _id: objectPr }, (err, result) => {
+                if (err) _cb(err);
+                else {
+                    col.updateOne({ typePr: product.type }, {
+                        $pull: { "lstPr": product }
+                    }, (err, _result) => {
+                        if (err) _cb(err);
+                        else {
+                            _cb('Product deleted');
+                        }
+                    });
+                }
+            });
 
         }
 
+    });
+}
+
+//Ok, creo que hay que hacerlo para que reciba un array y fusionarlo con createOrder
+function updateSales(product, cb) {
+    MongoClient.connect(url, function (err, client) {
+        if (err) cb(err);
+        else {
+            console.log('connected.');
+            function _cb(err, result) {
+                client.close();
+                cb(err, result);
+            }
+
+            var db = client.db('e-order');
+            var col = db.collection('product');
+
+            objectPr = new mongodb.ObjectId(product);
+            col.updateOne({ _id: objectPr }, {
+                $inc: { "sales": +1 }
+            }, (err, result) => {
+                if (err) _cb(err);
+                else {
+                    _cb('Sales update')
+                }
+            });
+        }
     });
 }
