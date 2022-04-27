@@ -287,7 +287,7 @@ function printTicket(token, opts, cb) {
 
 /****   OWNER  ****/
 
-//Esto een teoria ya esta falta hacer alguna prueba de funcionamiento y comprobar que se añade bien el array de productos
+//Ok
 function addType(token, type, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err);
@@ -310,6 +310,7 @@ function addType(token, type, cb) {
                                 if (err) _cb(err);
                                 else if (_user) _cb(new Error('Type already exists'));
                                 else {
+                                    type['name'] = type.name.toLowerCase();
                                     type['lstPr'] = [];
                                     product.insertOne(type, (err, result) => {
                                         if (err) _cb(err);
@@ -326,3 +327,99 @@ function addType(token, type, cb) {
 
 }
 
+//Para el type se puede crear un selector
+//Ok
+function addProduct(token, newProduct, cb) {
+    console.log('connected')
+    if (!newProduct.name) cb(new Error('Property name missing'));
+    else if (!newProduct.price) cb(new Error('Property price missing'));
+    MongoClient.connect(url, function (err, client) {
+        if (err) cb(err);
+        else {
+            // create new callback for closing connection
+            _cb = function (err, res) {
+                client.close();
+                cb(err, res);
+            }
+            let db = client.db('e-order');
+            let product = db.collection('product');
+            let customer = db.collection('customer');
+            customer.findOne({ _id: new mongodb.ObjectId(token) },
+                (err, _user) => {
+                    if (err) _cb(err);
+                    else if (_user.type != 'employee') _cb(new Error('This user is not a employee'));
+                    else {
+                        product.findOne({ name: newProduct.name },
+                            (err, _product) => {
+                                if (err) _cb(err);
+                                else if (_product) _cb(new Error('Product already exists'));
+                                else {
+                                    product.insertOne(newProduct, (err, result) => {
+                                        if (err) _cb(err);
+                                        else {
+                                            product.updateOne({ type: newProduct.typePr }, { $push: { lstPr: result.insertedId.toHexString() } }, (err, update) => {
+                                                if (err) _cb(err);
+                                                else {
+                                                    _cb(null, { id: result.insertedId.toHexString(), name: newProduct.name, lstPr: newProduct.lstPr, type: newProduct.typePr });
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                            });
+                    }
+                });
+        }
+    });
+
+}
+
+//No se esta cambiando bien el id de los arrays
+function updateProduct(productID, product, cb) {
+    MongoClient.connect(url, function (err, client) {
+        if (err) cb(err);
+        else {
+            console.log('connected.');
+            function _cb(err, result, result2) {
+                client.close();
+                cb(err, result, result2);
+            }
+
+            var db = client.db('e-order');
+            var col = db.collection('product');
+
+            let query = { _id: new mongodb.ObjectId(productID) };
+            objectPr = new mongodb.ObjectId(productID);
+
+            col.updateOne({ lstPr: objectPr }, {
+                $pull: {"lstPr": productID}
+            }, (err, _oldPr) => {
+                if (err) _cb(err);
+                else {
+                    console.log(objectPr);
+                    col.updateOne({ type: product.typePr }, {
+                        $pull: { lstPr: productID }
+                    }, (err, fake) => {
+                        if (err) _cb(err);
+                        else {
+                            col.updateOne(query, {
+                                $set: {
+                                    "name": product.name,
+                                    "price": product.price,
+                                    "typePr": product.typePr
+                                }
+                            }, (err, _newProduct) => {
+                                if (err) _cb(err);
+                                else {
+                                    _cb(null, { _newProduct })
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+
+        }
+
+    });
+}
