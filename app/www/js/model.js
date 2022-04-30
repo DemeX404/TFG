@@ -4,7 +4,7 @@ const url = 'mongodb://localhost:27017';
 
 /****   CUSTOMERS  ****/
 //Ok hay que añadir que al llamar la funcion se etiqueta el tipo de usuario
-function addClient(user, cb) {
+function addUser(user, cb) {
     if (!user.name) cb(new Error('Property name missing'));
     else if (!user.surname) cb(new Error('Property surname missing'));
     else if (!user.email) cb(new Error('Property email missing'));
@@ -73,96 +73,8 @@ function login(email, password, cb) {
     });
 }
 
-function updateClient(token, user, cb) {
-    MongoClient.connect(url, function (err, client) {
-        if (err) cb(err);
-        else {
-            console.log('connected.');
-            function _cb(err, result, result2) {
-                client.close();
-                cb(err, result, result2);
-            }
-
-            var db = client.db('e-order');
-            var col = db.collection('customer');
-
-            let query = { _id: new mongodb.ObjectId(token) };
-            col.updateOne(query, {
-                $set: {
-                    "name": user.name,
-                    "surname": user.surname,
-                    "email": user.email,
-                    "password": user.password,
-                    "nick": user.nick
-                }
-            }, (err, _user) => {
-                if (err) _cb(err);
-                else {
-                    console.log('Update Finished');
-                }
-            });
-
-        }
-
-    });
-}
-
-//No se puede hacer hasta que tenga los productos y tipos crea
-function listMenu(token, opts, cb) {
-
-    MongoClient.connect(url, function (err, client) {
-        if (err) cb(err)
-        else {
-            console.log('connected.');
-            function _cb(err, result, result2) {
-                client.close();
-                cb(err, result, result2);
-            }
-            var db = client.db('twitter');
-            var col = db.collection('users');
-            col.findOne({ _id: new mongodb.ObjectID(token) }, (err, _user) => {
-                if (err) _cb(err);
-                else if (!_user) _cb(new Error('Wrong token'));
-                else {
-                    // Si el usuario nos pasa una query
-                    var query = opts.query || {};
-                    // adapt options
-                    var options = {};
-                    if (opts.ini) options.skip = opts.ini;
-                    if (opts.count) options.limit = opts.count;
-                    if (opts.sort) options.sort = [[opts.sort.slice(1),
-                    //IF para ver si es + || - 
-                    (opts.sort.charAt(0) == '+' ? 1 : -1)]];
-
-                    //Recorremos las propiedades de la query y comprobamos si es un array, en ese caso sacamos lo datos 
-                    //del array y lo adaptamos a la query de mongodb
-                    for (let attr in query) {
-                        if (Array.isArray(query[attr])) query[attr] = { $in: query[attr] };
-                    }
-
-                    col.find(query, options).toArray((err, results) => {
-                        if (err) _cb(err);
-                        else {
-                            //results es un vector de los datos del usuario por eso solo le pasaremos los datos que sean necesarios
-                            results = results.map((doc) => {
-                                return {
-                                    id: doc._id.toHexString(), name: doc.name,
-                                    surname: doc.surname, email: doc.email, nick: doc.nick,
-                                    avatar: doc.avatar
-                                };
-                            });
-                            //No hay errores asi que pasamos los resultados
-                            _cb(null, results);
-                        }
-                    });
-                }
-            });
-        }
-    });
-}
-
-function createOrder(token, content, cb) {
-
+//Ok
+function updateUser(token, user, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err);
         else {
@@ -171,35 +83,174 @@ function createOrder(token, content, cb) {
                 client.close();
                 cb(err, result);
             }
-            var db = client.db('twitter');
-            var col = db.collection('tweets');
-            var col_User = db.collection('users');
-            //Sirve para buscar si el usuario ya existe
-            col_User.findOne({ _id: new mongodb.ObjectID(token) }, (err, _user) => {
-                if (err) _cb(err)
-                else if (!_user) _cb(new Error('User not exists'));
+
+            var db = client.db('e-order');
+            var col = db.collection('customer');
+
+            let query = { _id: new mongodb.ObjectId(token) };
+            col.findOne(query, (err, result) => {
+                if (err) _cb(err);
                 else {
-                    let tweet = {
-                        owner: token,
-                        date: Date.now(), content: content, likes: [], dislikes: []
-                    };
-                    col.insertOne(tweet, (err, result) => {
-                        if (err) _cb(err);
-                        else _cb(null, {
-                            id: result.insertedId.toHexString(), owner: tweet.owner,
-                            date: tweet.date, content: tweet.content, likes: tweet.likes, dislikes: tweet.dislikes
+                    if (result.type == 'employee') {
+                        col.updateOne(query, {
+                            $set: {
+                                "name": user.name,
+                                "surname": user.surname,
+                                "dni": user.dni,
+                                "password": user.password,
+                                "phone": user.phone
+                            }
+                        }, (err, _user) => {
+                            if (err) _cb(err);
+                            else {
+                                console.log(new Error('Update Finished'));
+                            }
                         });
+                    } else {
+                        col.updateOne(query, {
+                            $set: {
+                                "name": user.name,
+                                "surname": user.surname,
+                                "email": user.email,
+                                "password": user.password,
+                                "phone": user.phone
+                            }
+                        }, (err, _user) => {
+                            if (err) _cb(err);
+                            else {
+                                console.log(new Error('Update Finished'));
+                            }
+                        });
+                    }
+                }
+            })
+        }
+
+    });
+}
+
+//Ok
+//Hay que plantar como voy a visualizar los datos 
+function listMenu(opts, cb) {
+
+    MongoClient.connect(url, function (err, client) {
+        if (err) cb(err)
+        else {
+            console.log('connected.');
+            function _cb(err, result) {
+                client.close();
+                cb(err, result);
+            }
+            var db = client.db('e-order');
+            var col = db.collection('product');
+
+            var productsArray = [];
+
+            col.find({ type: { $exists: true } }).toArray((err, types) => {
+                if (err) _cb(err);
+                else {
+                    types.forEach((infoType) => {
+                        productsArray.push({
+                            _id: infoType.toHexString(), type: infoType.type, lstPr: infoType.lstPr
+                        });
+                    });
+
+                    col.find({ name: { $exists: true } }).toArray((err, products) => {
+                        if (err) _cb(err);
+                        else {
+                            products.forEach((infoPr) => {
+                                productsArray.push({
+                                    _id: infoPr.toHexString, name: infoPr.name, price: infoPr.price,
+                                    typePr: infoPr.typePr, sale: infoPr.sales
+                                });
+                            });
+                            _cb(null, productsArray);
+                        }
                     });
                 }
             });
+        }
+    });
+}
 
+//Ok
+function createOrder(token, content, cb) {
+    MongoClient.connect(url, function (err, client) {
+        if (err) cb(err);
+        else {
+            console.log('connected.');
+            function _cb(err, result) {
+                client.close();
+                cb(err, result);
+            }
+            var db = client.db('e-order');
+            var col = db.collection('customer');
+
+            //Localizamos al usuario que esta creando la orden
+            col.findOne({ _id: new mongodb.ObjectId(token) }, (err, _user) => {
+                if (err) _cb(err);
+                else {
+                    //En caso que el usuario no tenga ordenes anteriores creamos una nueva
+                    if (_user.orders.length == 0) addEntry(token, content);
+                    //Recorremos todas las ordenes del usuario en busca de la que tiene abierta actualmente
+                    _user.orders.forEach((orderID) => {
+                        let flag = _user.orders.length;
+                        col.findOne({ _id: new mongodb.ObjectId(orderID) }, (err, _order) => {
+                            if (err) _cb(err);
+                            else {
+                                //Encontramos la orden abierta y añadimos el pedio
+                                if (_order.paid == false) {
+                                    col.updateOne({ _id: _order._id }, {
+                                        $push: { "productOrder": { $each: [content] } }
+                                    }, (err, result) => {
+                                        if (err) _cb(err);
+                                        else {
+                                            _cb(new Error('Add product to the current order'));
+                                        }
+                                    });
+                                }
+                                flag = flag - 1;
+                                //En caso de no encontrar ninguna orden abierta creamos una nueva
+                                if (flag == 0) {
+                                    addEntry(token, content);
+                                }
+                            }
+                        });
+                    });
+                    //Añadir una nueva entra a la coleccion
+                    function addEntry(token, content) {
+                        let newEntry = {}
+                        newEntry['refClient'] = token;
+                        newEntry['paid'] = false;
+                        newEntry['productOrder'] = [content];
+                        console.log('Creando nueva entrada');
+                        col_customer.insertOne(newEntry, (err, result) => {
+                            if (err) _cb(err);
+                            else {
+                                col_customer.updateOne({ _id: _user._id }, {
+                                    $push: { "orders": result.insertedId.toHexString() }
+                                }, (err, _result) => {
+                                    if (err) _cb(err);
+                                    else {
+                                        _cb(null, {
+                                            id: result.insertedId.toHexString(), refClient: result.refClient,
+                                            productOrder: result.productOrder, paid: result.paid
+                                        });
+                                    }
+                                });
+                            }
+                        });
+                    }
+                }
+            });
         }
 
     });
 
 }
 
-function editOrder(token, orderID, cb) {
+//Hay que plantearse como apuntar al elemento del array que se quiere cambiar
+function editOrder(orderID,content, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err);
         else {
@@ -212,14 +263,18 @@ function editOrder(token, orderID, cb) {
             var db = client.db('e-order');
             var col = db.collection('customer');
 
-            let query = { _id: new mongodb.ObjectId(token) };
+            col.findOne({_id: new mongodb.ObjectId(orderID)}, (err, _order)=>{
+                if(err) _cb(err);
+                else{
+
+                }
+            });
+            let query = { _id: new mongodb.ObjectId(orderID), "productOrder.productId":  };
             col.updateOne(query, {
                 $set: {
-                    "name": user.name,
-                    "surname": user.surname,
-                    "email": user.email,
-                    "password": user.password,
-                    "nick": user.nick
+                    "productId": content.productId,
+                    "qty": content.qty,
+                    "msg": content.msg,
                 }
             }, (err, _user) => {
                 if (err) _cb(err);
@@ -306,12 +361,12 @@ function addType(token, type, cb) {
                     if (err) _cb(err);
                     else if (_user.type != 'employee') _cb(new Error('This user is not a employee'));
                     else {
-                        product.findOne({ name: type.name },
-                            (err, _user) => {
+                        product.findOne({ type: type.type },
+                            (err, _product) => {
                                 if (err) _cb(err);
-                                else if (_user) _cb(new Error('Type already exists'));
+                                else if (_product) _cb(new Error('Type already exists'));
                                 else {
-                                    type['name'] = type.name.toLowerCase();
+                                    type['type'] = type.type.toLowerCase();
                                     type['lstPr'] = [];
                                     product.insertOne(type, (err, result) => {
                                         if (err) _cb(err);
@@ -353,6 +408,43 @@ function updateType(typeID, newType, cb) {
                 }
             });
 
+        }
+
+    });
+}
+
+//Ok
+function deleteType(typeId, cb) {
+    MongoClient.connect(url, function (err, client) {
+        if (err) cb(err);
+        else {
+            console.log('connected.');
+            function _cb(err, result) {
+                console.log(err);
+                client.close();
+                cb(err, result);
+            }
+
+            var db = client.db('e-order');
+            var col = db.collection('product');
+
+            //No se puede borrar el tipo si aun tiene productos asociados
+            objectPr = new mongodb.ObjectId(typeId);
+            col.findOne({ _id: objectPr }, (err, result) => {
+                if (err) _cb(err);
+                else {
+                    if (result.lstPr.length > 0) {
+                        _cb(new Error('Some product still asociated with this type'))
+                    } else {
+                        col.deleteOne({ _id: objectPr }, (err, _result) => {
+                            if (err) _cb(err);
+                            else {
+                                _cb('Type deleted');
+                            }
+                        });
+                    }
+                }
+            })
         }
 
     });
@@ -449,42 +541,6 @@ function updateProduct(productID, product, cb) {
                     });
                 }
             });
-        }
-
-    });
-}
-
-//Falta probar si funciona
-function deleteType(typeId, cb) {
-    MongoClient.connect(url, function (err, client) {
-        if (err) cb(err);
-        else {
-            console.log('connected.');
-            function _cb(err, result) {
-                client.close();
-                cb(err, result);
-            }
-
-            var db = client.db('e-order');
-            var col = db.collection('product');
-
-            //No se puede borrar el tipo si aun tiene productos asociados
-            objectPr = new mongodb.ObjectId(typeId);
-            col.findOne({ _id: objectPr }, (err, result) => {
-                if (err) _cb(err);
-                else {
-                    if (result.lstPr.size > 0) {
-                        _cb('Some product still asociated with this type')
-                    } else {
-                        col.deleteOne({ _id: objectPr }, (err, _result) => {
-                            if (err) _cb(err);
-                            else {
-                                _cb('Type deleted');
-                            }
-                        });
-                    }
-                }
-            })
         }
 
     });
