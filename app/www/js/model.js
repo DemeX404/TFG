@@ -443,50 +443,43 @@ function deleteType(typeId, cb) {
 }
 
 //Ok
-function addProduct(token, newProduct, cb) {
+function addProduct(newProduct, cb) {
     console.log('connected')
     if (!newProduct.name) cb(new Error('Property name missing'));
     else if (!newProduct.price) cb(new Error('Property price missing'));
-    MongoClient.connect(url, function (err, client) {
-        if (err) cb(err);
-        else {
-            // create new callback for closing connection
-            _cb = function (err, res) {
-                client.close();
-                cb(err, res);
-            }
-            let db = client.db('e-order');
-            let product = db.collection('product');
-            let customer = db.collection('customer');
-            customer.findOne({ _id: new mongodb.ObjectId(token) },
-                (err, _user) => {
-                    if (err) _cb(err);
-                    else if (_user.type != 'employee') _cb(new Error('This user is not a employee'));
-                    else {
-                        product.findOne({ name: newProduct.name },
-                            (err, _product) => {
+    else {
+        MongoClient.connect(url, function (err, client) {
+            if (err) cb(err);
+            else {
+                // create new callback for closing connection
+                _cb = function (err, res) {
+                    client.close();
+                    cb(err, res);
+                }
+                let db = client.db('e-order');
+                let product = db.collection('product');
+                product.findOne({ name: newProduct.name },
+                    (err, _product) => {
+                        if (err) _cb(err);
+                        else if (_product) _cb(new Error('Product already exists'));
+                        else {
+                            newProduct['sales'] = 0;
+                            product.insertOne(newProduct, (err, result) => {
                                 if (err) _cb(err);
-                                else if (_product) _cb(new Error('Product already exists'));
                                 else {
-                                    newProduct['sales'] = 0;
-                                    product.insertOne(newProduct, (err, result) => {
+                                    product.updateOne({ type: newProduct.typePr }, { $push: { lstPr: result.insertedId.toHexString() } }, (err, update) => {
                                         if (err) _cb(err);
                                         else {
-                                            product.updateOne({ type: newProduct.typePr }, { $push: { lstPr: result.insertedId.toHexString() } }, (err, update) => {
-                                                if (err) _cb(err);
-                                                else {
-                                                    _cb(null, { id: result.insertedId.toHexString(), name: newProduct.name, lstPr: newProduct.lstPr, type: newProduct.typePr });
-                                                }
-                                            });
+                                            _cb(null, { id: result.insertedId.toHexString(), name: newProduct.name, lstPr: newProduct.lstPr, type: newProduct.typePr });
                                         }
                                     });
                                 }
                             });
-                    }
-                });
-        }
-    });
-
+                        }
+                    });
+            }
+        });
+    }
 }
 
 //Ok

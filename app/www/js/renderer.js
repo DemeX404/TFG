@@ -130,6 +130,10 @@ pages.owner = {
     createPrTy: function () {
         console.log('owner.createPrTy()');
         navigateTo('createPrTy');
+    },
+    creatEmpl: function(){
+        console.log('owner.createEmpl()');
+        navigateTo('createEmpl');
     }
 };
 pages.createEmpl = {
@@ -166,7 +170,7 @@ pages.createPrTy = {
                 count++;
                 if (product['type'] != null) {
                     optionHtml +=
-                        `<option value="${count}"> ${product.type}</option>`
+                        `<option value="${product.type}" id="type"> ${product.type}</option>`
                 }
             });
             html = `
@@ -181,18 +185,15 @@ pages.createPrTy = {
             var nodes = document.querySelectorAll('select');
             var FormSelect = M.FormSelect.init(nodes, {});
         });
-
-
-
     },
-    adddType: function () {
+    addType: function () {
         console.log('createPrTy.addType()');
         let type = document.getElementById('type').value;
-        adddType({ type: type }, (err, newType) => {
+        addType({ type: type }, (err, newType) => {
             if (err) alert('Error: ' + err.stack);
             else {
                 console.log(newType);
-                //creo que aqui habria que hacer un reload de la pagina para refrescar las opciones de tipo
+                pages.createPrTy.refresh();
             }
         });
     },
@@ -200,11 +201,15 @@ pages.createPrTy = {
         console.log('createPrTy.addProduct()');
         let name = document.getElementById('name').value;
         let price = document.getElementById('price').value;
-        let type = document.getElementById('type').value;
-        addProduct({ name: name, price: price, type: type }, (err, newProduct) => {
+        let elems = document.querySelector('select');
+        var FormSelect = M.FormSelect.init(elems, {});
+        let type = FormSelect.getSelectedValues();
+        console.log(type[0]);
+
+        addProduct({ name: name, price: price, typePr: type[0] }, (err, newProduct) => {
             if (err) alert('Error: ' + err.stack);
             else {
-                console.log(newProduct);
+                pages.createPrTy.refresh();
             }
         });
     }
