@@ -2,6 +2,7 @@
  y cuales se ocultan */
 
 let pages = {};
+//Ok
 pages.login = {
     show: function (data) { console.log('login.show()'); },
     hide: function () { console.log('login.hide()'); },
@@ -10,10 +11,28 @@ pages.login = {
         navigateTo('register');
     },
     login: function () {
-        console.log('login.home()');
-        navigateTo('home');
-    },
+        console.log('login.login()');
+        //Obtenemos las variables del HTML
+        let name = document.getElementById('name').value;
+        let password = document.getElementById('password').value;
+        login(name, password, (err, token, user) => {
+            if (err) alert('Error: ' + err.stack);
+            else {
+                //Guardamos el token
+                window.token = token;
+                window.user = user;
+                if (user.type == 'owner') {
+                    navigateTo('owner');
+                } else if (user.type == 'employee') {
+                    navigateTo('choose');
+                } else {
+                    navigateTo('home');
+                }
+            }
+        });
+    }
 };
+//Ok
 pages.register = {
     show: function (data) { console.log('register.show()'); },
     hide: function () { console.log('register.hide()'); },
@@ -21,9 +40,35 @@ pages.register = {
         console.log('register.login()');
         navigateTo('login');
     },
+    register: function () {
+        console.log('register.register()');
+        let name = document.getElementById('name').value;
+        let surname = document.getElementById('surname').value;
+        let email = document.getElementById('email').value;
+        let password = document.getElementById('password').value;
+        let phone = document.getElementById('phone').value;
+        let type = "customer";
+        addUser({ name: name, surname: surname, email: email, password: password, phone: phone, type: type }, (err, user) => {
+            if (err) alert('Error: ' + err.stack);
+            else {
+                navigateTo('login')
+            }
+        });
+    }
 };
 pages.home = {
-    show: function (data) { console.log('home.show()'); },
+    show: function (data) {
+        console.log('home.show()');
+        // Init sidenav
+        var nodes = document.querySelectorAll('.sidenav');
+        var sidenavs = M.Sidenav.init(nodes, { edge: 'left' });
+        // Init modal
+        var nodes = document.querySelectorAll('.modal');
+        var modals = M.Modal.init(nodes, {});
+        //Init tabs
+        var nodes = document.querySelectorAll('.tabs');
+        var tabs = M.Tabs.init(nodes, {});
+    },
     hide: function () { console.log('home.hide()'); },
     login: function () {
         console.log('home.login()');
@@ -81,7 +126,11 @@ pages.ticket = {
 };
 pages.owner = {
     show: function (data) { console.log('owner.show()'); },
-    hide: function () { console.log('owner.hide()'); }
+    hide: function () { console.log('owner.hide()'); },
+    createPrTy: function () {
+        console.log('owner.createPrTy()');
+        navigateTo('createPrTy');
+    }
 };
 pages.createEmpl = {
     show: function (data) { console.log('createEmpl.show()'); },
@@ -99,10 +148,68 @@ pages.diningRoom = {
     show: function (data) { console.log('diningRoom.show()'); },
     hide: function () { console.log('diningRoom.hide()'); }
 };
-pages.log2 = {
-    show: function (data) { console.log('log2.show()'); },
-    hide: function () { console.log('log2.hide()'); }
+pages.createPrTy = {
+    show: function (data) {
+        console.log('createPrTy.show()');
+
+        pages.createPrTy.refresh();
+    },
+    hide: function () { console.log('createPrTy.hide()'); },
+    refresh: function () {
+        console.log('createPrTy');
+        let html = ``;
+        let optionHtml = ``;
+        let count = 0;
+        listMenu({}, (err, colProduct) => {
+
+            colProduct.forEach((product) => {
+                count++;
+                if (product['type'] != null) {
+                    optionHtml +=
+                        `<option value="${count}"> ${product.type}</option>`
+                }
+            });
+            html = `
+                <select>
+                    <option value="" disabled selected>Choose type</option>
+                    ${optionHtml}
+                </select>
+                <label>Type Food</label>`;
+
+            document.getElementById('allTypes').innerHTML = html || 'No types';
+            //Init FormSelect
+            var nodes = document.querySelectorAll('select');
+            var FormSelect = M.FormSelect.init(nodes, {});
+        });
+
+
+
+    },
+    adddType: function () {
+        console.log('createPrTy.addType()');
+        let type = document.getElementById('type').value;
+        adddType({ type: type }, (err, newType) => {
+            if (err) alert('Error: ' + err.stack);
+            else {
+                console.log(newType);
+                //creo que aqui habria que hacer un reload de la pagina para refrescar las opciones de tipo
+            }
+        });
+    },
+    addProduct: function () {
+        console.log('createPrTy.addProduct()');
+        let name = document.getElementById('name').value;
+        let price = document.getElementById('price').value;
+        let type = document.getElementById('type').value;
+        addProduct({ name: name, price: price, type: type }, (err, newProduct) => {
+            if (err) alert('Error: ' + err.stack);
+            else {
+                console.log(newProduct);
+            }
+        });
+    }
 };
+
 
 const fs = require('fs');
 const pathViews = 'app/www';
