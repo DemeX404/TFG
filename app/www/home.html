@@ -32,54 +32,6 @@
         <li><a href="#!" onclick="pages.register.login()" class="waves-effect waves-light btn li-h"
                 style="margin-top: 20%;"><i class="material-icons right">exit_to_app</i>Exit</a></li>
     </ul>
-    <!-- Modal que salta al pedir -->
-    <div id="modal1" class="modal">
-        <div class="modal-content">
-            <div class="col s12 m6">
-                <div class="card">
-                    <div class="card-image">
-                        <img src="images/1entrante.jpg" style="width: 75%; margin-left: auto; margin-right: auto;">
-                    </div>
-                    <div class="divider"></div>
-                    <div class="card-content">
-                        <div style="color: #3454D1;">
-                            <div>
-                                <h5>Starter 1</h5>
-                                <span style="margin-left: 25px">Rico plato con </span>
-                            </div>
-                        </div>
-                        <div class="divider" style="margin: 20px;"></div>
-                        <div style="color: #3454D1;">
-                            <div>
-                                <h5>Add Note</h5>
-                                <form class="col s12" style="margin-left: 25px">
-                                    <div class="input-field col s12">
-                                        <textarea id="textarea1" class="materialize-textarea"></textarea>
-                                        <label for="textarea1">Note</label>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-action"
-                        style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <a class="waves-teal btn-flat" style="margin: 0px; color: #070707;">
-                                <i class="material-icons">remove</i>
-                            </a>
-                            <input type="number" style="width: 50%;border-style: groove; text-align: center;" value="0">
-                            <a class="waves-teal btn-flat" style="margin: 0px; color: #070707;">
-                                <i class="material-icons">add</i>
-                            </a>
-                        </div>
-                        <!-- Hacer algo aqui para que se guarda lo que se pide -->
-                        <a href="#" onclick="pages.login.login()" class="waves-effect waves-light btn"
-                            style="width:25%;background-color:#3454D1;">Ok</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <div class="card">
         <div class="card-content card small" style="padding: 0px;">
@@ -93,22 +45,22 @@
         <!-- Tabs con su respectivo contenido -->
         <div class="card-tabs" style="background-color: #EFEFEF;">
             <div class="col s12">
-                <ul class="tabs tabs-fixed-width">
-                    <li class="tab col s3"><a href="#starter" style="color: #3454d1;"> Starter</a></li>
+                <ul class="tabs tabs-fixed-width" id="types">
+                    <!-- <li class="tab col s3"><a href="#starter" style="color: #3454d1;"> Starter</a></li>
                     <li class="tab col s3"><a href="#main" style="color: #3454d1;">Main Dishes</a></li>
                     <li class="tab col s3"><a href="#drinks" style="color: #3454d1;">Drinks</a></li>
-                    <li class="tab col s3"><a href="#dessert" style="color: #3454d1;">Dessert</a></li>
+                    <li class="tab col s3"><a href="#dessert" style="color: #3454d1;">Dessert</a></li> -->
                 </ul>
             </div>
-            <div id="starter" class="col s12">
-                <!-- Solo he hecho este primer caso debido a que esto se genera automaticamente cuando
-                se crean nuevas opciones -->
+            <div id="producTab"></div>
+            <!-- <div id="starter" class="col s12">
+                
                 <div class="section">
                     <h4 style="color: #3454D1;">Starter</h4>
                 </div>
                 <div class="divider"></div>
-                <!-- Modal Trigger -->
-                <a class="modal-trigger" href="#modal1">
+                Modal Trigger 
+                <a class="modal-trigger" href="#modal">
                     <div class="section flex-h" style="color: #3454D1;">
                         <div>
                             <h5>Starter 1</h5>
@@ -223,7 +175,7 @@
                     </div>
                     <img class="responsive-img" style="width: 250px; align-self: flex-end;" src="images/1entrante.jpg">
                 </div>
-            </div>
+            </div> -->
             <div style="display: flex; justify-content: center; margin-top: 20px;">
                 <a onclick="pages.home.order()" class="waves-effect waves-light btn"
                     style="width: 50%; background-color:#3454D1; color:#EFEFEF">View Basket</a>
@@ -232,8 +184,59 @@
         </div>
     </div>
 
-    <!-- Compiled and minified JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <!-- Modal que salta al pedir -->
+    <div id="modals"></div>
+         <!-- <div id="modal1" class="modal">
+            <div class="modal-content">
+                <div class="col s12 m6">
+                    <div class="card">
+                        <div class="card-image">
+                            <img src="images/1entrante.jpg" style="width: 75%; margin-left: auto; margin-right: auto;">
+                        </div>
+                        <div class="divider"></div>
+                        <div class="card-content">
+                            <div style="color: #3454D1;">
+                                <div>
+                                    <h5>Starter 1</h5>
+                                    <span style="margin-left: 25px">Rico plato con </span>
+                                </div>
+                            </div>
+                            <div class="divider" style="margin: 20px;"></div>
+                            <div style="color: #3454D1;">
+                                <div>
+                                    <h5>Add Note</h5>
+                                    <form class="col s12" style="margin-left: 25px">
+                                        <div class="input-field col s12">
+                                            <textarea id="textarea1" class="materialize-textarea"></textarea>
+                                            <label for="textarea1">Note</label>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-action"
+                            style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <a class="waves-teal btn-flat" style="margin: 0px; color: #070707;">
+                                    <i class="material-icons">remove</i>
+                                </a>
+                                <input type="number" style="width: 50%;border-style: groove; text-align: center;"
+                                    value="0">
+                                <a class="waves-teal btn-flat" style="margin: 0px; color: #070707;">
+                                    <i class="material-icons">add</i>
+                                </a>
+                            </div>
+                            <a href="#" onclick="pages.login.login()" class="waves-effect waves-light btn"
+                                style="width:25%;background-color:#3454D1;">Ok</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>  -->
+
+
+        <!-- Compiled and minified JavaScript -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 </body>
 
 </html>

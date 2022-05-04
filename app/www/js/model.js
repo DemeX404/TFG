@@ -2,12 +2,30 @@ const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
 const url = 'mongodb://localhost:27017';
 
+/*Esta parte habra que probarla cuando tenga el servicio restful
+const multer = require('multer');
+
+const storage = multer.diskStorage({
+    destination: function(request, file, cb){
+        cb(null, './www/images');
+    },
+    filename: function(request, file, cb){
+        cb(null, Date.now() + file.originalname);
+    }
+});
+
+const upload = mult({
+    storage: storage,
+    limite:{
+        fieldSize: 1024*1024*3
+    }
+});*/
+
 /****   CUSTOMERS  ****/
-//Ok hay que añadir que al llamar la funcion se etiqueta el tipo de usuario
+//Ok
 function addUser(user, cb) {
     if (!user.name) cb(new Error('Property name missing'));
     else if (!user.surname) cb(new Error('Property surname missing'));
-    else if (!user.email) cb(new Error('Property email missing'));
     else if (!user.password) cb(new Error('Property password missing'));
     else if (!user.phone) cb(new Error('Property phone missing'));
     else if (!user.type) cb(new Error('Propery type missing'));
@@ -181,8 +199,8 @@ function listMenu(opts, cb) {
                         else {
                             products.forEach((infoPr) => {
                                 productsArray.push({
-                                    _id: infoPr._id.toHexString, name: infoPr.name, price: infoPr.price,
-                                    typePr: infoPr.typePr, sale: infoPr.sales
+                                    _id: infoPr._id.toHexString(), name: infoPr.name, price: infoPr.price,
+                                    typePr: infoPr.typePr, sale: infoPr.sales, description: infoPr.description
                                 });
                             });
                             _cb(null, productsArray);
@@ -211,6 +229,7 @@ function createOrder(token, content, cb) {
             col.findOne({ _id: new mongodb.ObjectId(token) }, (err, _user) => {
                 if (err) _cb(err);
                 else {
+                    console.log(_user.orders.length);
                     //En caso que el usuario no tenga ordenes anteriores creamos una nueva
                     if (_user.orders.length == 0) addEntry(token, content);
                     //Recorremos todas las ordenes del usuario en busca de la que tiene abierta actualmente
@@ -325,7 +344,6 @@ function printTicket(orderID, cb) {
             col.findOne({ _id: new mongodb.ObjectId(orderID) }, (err, _order) => {
                 if (err) _cb(err);
                 else {
-                    console.log(orderID);
                     _order.productOrder.forEach((order) => {
                         orderArray.push({
                             id: order.id, productId: order.productId, qty: order.qty
@@ -587,6 +605,46 @@ function updateSales(product, cb) {
                     _cb('Sales update')
                 }
             });
+        }
+    });
+}
+
+function showOrder(orderID, cb) {
+    MongoClient.connect(url, function (err, client) {
+        if (err) cb(err)
+        else {
+            console.log('connected.');
+            function _cb(err, result) {
+                client.close();
+                cb(err, result);
+            }
+
+            var db = client.db('e-order');
+            var colCustomer = db.collection('customer');
+            var colProduct = db.collection('product');
+            var orderArray = [];
+            var result = [];
+
+            colCustomer.findOne({ _id: new mongodb.ObjectId(orderID) }, (err, _order) => {
+                if (err) _cb(err);
+                else {
+                    _order.productOrder.forEach((order) => {
+                        console.log(order.productId);
+                        orderArray.push({id: order._id});
+                    });
+                    colProduct.findOne({ _id: new mongodb.ObjectId(order.productId) }, (err, _product) => {
+                        if (err) _cb(err);
+                        else {
+                            console.log(_product);
+                            orderArray.push({
+                                id: _product.id, name: _product.name, price: _product.price, typePr: _productPr.drinks
+                            });
+                        }
+                    });
+                    _cb(null, orderArray);
+                }
+            });
+
         }
     });
 }

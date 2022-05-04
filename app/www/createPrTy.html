@@ -12,6 +12,11 @@
 </head>
 
 <body style="display: flex; justify-content: center; align-items: center; height:100%">
+    <div style="margin-left: 5%;margin-top: 5%;">
+        <a href="#" onclick="pages.createPrTy.owner()">
+            <i class="small material-icons" style="color:#070707;">arrow_back</i>
+        </a>
+    </div>
 
     <div class="container">
         <div class="row">
@@ -37,7 +42,7 @@
         <div class="col s12">
             <h2>Product</h2>
         </div>
-        <form>
+        <form class="multipart/form-data">
             <div class="row">
                 <div class="input-field col s6">
                     <input id="name" type="text">
@@ -50,6 +55,21 @@
                     <label for="price">Price</label>
                 </div>
             </div>
+            <div class="row">
+                <div class="input-field col s6">
+                    <input id="description" type="text">
+                    <label for="description">Description</label>
+                </div>
+            </div>
+            <!-- Esto es para hacer la prueba para subir imagenes
+            Aun queda por probar si puedo hacerlo con materialize -->
+            <div class="row">
+                <div class="form-group">
+                    <label for="image" class="text-white"> Upload Image</label>
+                    <input type="file" name="image" id="image" class="form-control-file text-white"> 
+                </div>
+            </div>
+
             <div class="row">
                 <div id="allTypes" class="input-field col s12">
                     <select>

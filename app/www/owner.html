@@ -16,11 +16,11 @@
     <div class="container" style="border: ridge;">
         <div
             style="display: flex; margin-left: 5%;justify-content: space-between;align-items: center; margin-top: 20px;">
-            <a href="#" onclick="pages.order.home()">
+            <a href="#" onclick="pages.owner.login()">
                 <i class="medium material-icons" style="color:#070707;">exit_to_app</i>
             </a>
 
-            <a onclick="pages.owner.createempl()" class="waves-effect waves-light btn"
+            <a onclick="pages.owner.creatEmpl()" class="waves-effect waves-light btn"
                 style="background-color:#3454D1; color:#EFEFEF; margin-right: 5%;">Create Employee</a>
             <a onclick="pages.owner.createPrTy()" class="waves-effect waves-light btn"
                 style="background-color:#3454D1; color:#EFEFEF; margin-right: 5%;">Create Type/Product</a>
@@ -31,16 +31,13 @@
         <table class="centered striped" style="margin-bottom: 20px;">
             <thead>
                 <tr>
+                    <th>Type</th>
                     <th>Product</th>
                     <th>Quantity</th>
                 </tr>
             </thead>
 
-            <tbody>
-                <tr>
-                    <td>Starter 1</td>
-                    <td>120</td>
-                </tr>
+            <tbody id="tbody">
             </tbody>
         </table>
     </div>

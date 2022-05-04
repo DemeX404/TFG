@@ -48,7 +48,11 @@ pages.register = {
         let password = document.getElementById('password').value;
         let phone = document.getElementById('phone').value;
         let type = "customer";
-        addUser({ name: name, surname: surname, email: email, password: password, phone: phone, type: type }, (err, user) => {
+        let orders = [];
+        addUser({
+            name: name, surname: surname, email: email, password: password,
+            phone: phone, type: type, orders: orders
+        }, (err, user) => {
             if (err) alert('Error: ' + err.stack);
             else {
                 navigateTo('login')
@@ -59,17 +63,118 @@ pages.register = {
 pages.home = {
     show: function (data) {
         console.log('home.show()');
-        // Init sidenav
-        var nodes = document.querySelectorAll('.sidenav');
-        var sidenavs = M.Sidenav.init(nodes, { edge: 'left' });
-        // Init modal
-        var nodes = document.querySelectorAll('.modal');
-        var modals = M.Modal.init(nodes, {});
-        //Init tabs
-        var nodes = document.querySelectorAll('.tabs');
-        var tabs = M.Tabs.init(nodes, {});
+
+
+        pages.home.refresh();
     },
     hide: function () { console.log('home.hide()'); },
+    //wip hay que modificar la introduccion de productos
+    refresh: function () {
+        console.log('home.refresh()');
+
+        let htmlTabs = ``;
+        let htmlProducts = ``;
+        let htmlProductsBody = ``;
+        let htmlModal = ``;
+        listMenu({}, (err, colProduct) => {
+            if (err) alert('Error: ' + err.stack);
+            else {
+                colProduct.forEach((product) => {
+                    if (product['type'] != null) {
+                        htmlTabs += `
+                        <li class="tab col s3"><a href="#${product.type}" style="color: #3454d1;"> ${product.type}</a></li>`
+                        htmlProducts += `
+                        <div id="${product.type}" class="col s12>
+                            <div class="section">
+                                <h4 style="color: #3454D1;"> ${product.type}</h4>
+                            </div>
+                            <div class="divider"></div>
+                            <div id="products"></div>
+                        </div>`;
+                    } else if (product['typePr'] != null) {
+                        console.log(product);
+                        let id = product._id;
+                        htmlProductsBody += `
+                        <a class="modal-trigger" href=#modal${id}">
+                            <div class="section flex-h" style="color: #3454D1;">
+                                <div>
+                                    <h5> ${product.name} </h5>
+                                    <span> ${product.description}</span>
+                                </div>
+                                <img class="responsive-img" style="width: 250px; align-self: flex-end;"
+                                    src="images/1entrante.jpg"">
+                            </div>
+                        </a>`;
+                        //Hay que arreglar que el modal se esconda bien y que se active al hacer click sobre el producto
+                        //Also hay qe comrpobar que la interfaz sigue funcionando con mas tipos y productos
+                        htmlModal += `
+                        <div id="modal${id} class="modal">
+                            <div class="modal-content">
+                                <div class="col s12 m6">
+                                    <div class="card">
+                                        <div class="card-image">
+                                            <img src="images/1entrante.jpg" style="width: 75%; margin-left: auto; margin-right: auto;">
+                                        </div>
+                                        <div class="divider"></div>
+                                        <div class="card-content">
+                                            <div style="color: #3454D1;">
+                                                <div>
+                                                    <h5> ${product.name} </h5>
+                                                    <span style="margin-left: 25px"> ${product.description} </span>
+                                                </div>
+                                            </div>
+                                            <div class="divider" style="margin: 20px"></div>
+                                            <div style="color: #3454D1;">
+                                                <div>
+                                                    <h5> Add Note </h5>
+                                                    <form class="col s12" style="margin-left: 25px">
+                                                        <div class="input-field col s12">
+                                                            <textarea id="textarea" class="materialize-textarea"></textarea>
+                                                            <label for="textarea1"> Note </label>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class"card-action"
+                                            style="display: flex; justify-content: space-between; align-items: center;">
+                                            <div>
+                                                <a class="waves-teal btn-flat" style="margin: 0px; color: #070707">
+                                                    <i class="material-icons"> remove </i>
+                                                </a>
+                                                <input type="number" style="width: 50%; border-style: groove; text-align: center;" value="0">
+                                                <a class="waves-teal btn-flat" style="margin: 0px; color #070707;">
+                                                    <i class="material-icons"> add </i>
+                                                </a>
+                                            </div>
+                                            <a href="#" onclick="pages.login.login()" class="waves-effect waves-light btn"
+                                                style="width:25%; background-colour: #3454D1"> Ok </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                    }
+                });
+                console.log(htmlProductsBody);
+                console.log(htmlModal);
+                document.getElementById('types').innerHTML = htmlTabs || 'No types';
+                document.getElementById('producTab').innerHTML = htmlProducts || 'No types';
+                document.getElementById('products').innerHTML = htmlProductsBody || 'No products';
+                document.getElementById('modals').innerHTML = htmlModal || 'No modal found';
+
+                // Init sidenav
+                var nodes = document.querySelectorAll('.sidenav');
+                var sidenavs = M.Sidenav.init(nodes, { edge: 'left' });
+                // Init modal
+                var nodes = document.querySelectorAll('.modal');
+                var modals = M.Modal.init(nodes, {});
+                //Init tabs
+                var nodes = document.querySelectorAll('.tabs');
+                var tabs = M.Tabs.init(nodes, {});
+            }
+        });
+    },
     login: function () {
         console.log('home.login()');
         navigateTo('home');
@@ -124,38 +229,105 @@ pages.ticket = {
         navigateTo('home');
     },
 };
+//Ok
 pages.owner = {
-    show: function (data) { console.log('owner.show()'); },
+    show: function (data) {
+        console.log('owner.show()');
+        pages.owner.refresh();
+    },
     hide: function () { console.log('owner.hide()'); },
+    refresh: function () {
+        console.log('owner.refresh()');
+        let html = ``;
+        listMenu({}, (err, colProduct) => {
+            if (err) alert('Error: ' + err.stack);
+            else {
+                colProduct.forEach((product) => {
+                    if (product['typePr'] != null) {
+                        html += `
+                        <tr>
+                            <td>${product.typePr}</td>
+                            <td>${product.name}</td>
+                            <td>${product.sale}</td>
+                        </tr>
+                        `;
+                    }
+                });
+                document.getElementById('tbody').innerHTML = html || 'No types';
+            }
+        });
+    },
     createPrTy: function () {
         console.log('owner.createPrTy()');
         navigateTo('createPrTy');
     },
-    creatEmpl: function(){
-        console.log('owner.createEmpl()');
-        navigateTo('createEmpl');
+    login: function () {
+        console.log('owner.login()');
+        navigateTo('login');
+    },
+    creatEmpl: function () {
+        console.log('owner.creatEmpl()');
+        navigateTo('creatEmpl');
+    },
+    createPrTy: function () {
+        console.log('owner.createPrTy()');
+        navigateTo('createPrTy');
     }
 };
-pages.createEmpl = {
-    show: function (data) { console.log('createEmpl.show()'); },
-    hide: function () { console.log('createEmpl.hide()'); }
+//Ok
+pages.creatEmpl = {
+    show: function (data) { console.log('creatEmpl.show()'); },
+    hide: function () { console.log('creatEmpl.hide()'); },
+    owner: function () {
+        console.log('creatEmpl.owner()');
+        navigateTo('owner');
+    },
+    creatEmpl: function () {
+        console.log('createEmpl.createEmpl()');
+        let name = document.getElementById('name').value;
+        let surname = document.getElementById('surname').value;
+        let dni = document.getElementById('dni').value;
+        let password = document.getElementById('password').value;
+        let phone = document.getElementById('phone').value;
+        let type = "employee";
+
+        addUser({ name: name, surname: surname, dni: dni, password: password, phone: phone, type: type }, (err, employe) => {
+            if (err) alert('Error: ' + err.stack);
+            else {
+                alert('Employee create succefuly');
+            }
+        });
+    }
 };
+//Ok
 pages.choose = {
     show: function (data) { console.log('choose.show()'); },
-    hide: function () { console.log('choose.hide()'); }
+    hide: function () { console.log('choose.hide()'); },
+    dining: function () {
+        console.log('choose.dining()');
+        navigateTo('dining');
+    },
+    kitchen: function () {
+        console.log('choose.kitchen()');;
+        navigateTo('kitchen');
+    }
 };
 pages.kitchen = {
     show: function (data) { console.log('kitchen.show()'); },
-    hide: function () { console.log('kitchen.hide()'); }
+    hide: function () { console.log('kitchen.hide()'); },
+    login: function () {
+        console.log('kitchen.login()');
+        navigateTo('login');
+    }
 };
 pages.diningRoom = {
     show: function (data) { console.log('diningRoom.show()'); },
     hide: function () { console.log('diningRoom.hide()'); }
 };
+//Ok
 pages.createPrTy = {
     show: function (data) {
         console.log('createPrTy.show()');
-
         pages.createPrTy.refresh();
     },
     hide: function () { console.log('createPrTy.hide()'); },
@@ -163,28 +335,32 @@ pages.createPrTy = {
         console.log('createPrTy');
         let html = ``;
         let optionHtml = ``;
-        let count = 0;
         listMenu({}, (err, colProduct) => {
+            if (err) alert(err.stack);
+            else {
+                colProduct.forEach((product) => {
+                    if (product['type'] != null) {
+                        optionHtml +=
+                            `<option value="${product.type}" id="type"> ${product.type}</option>`
+                    }
+                });
+                html = `
+                    <select>
+                        <option value="" disabled selected>Choose type</option>
+                        ${optionHtml}
+                    </select>
+                    <label>Type Food</label>`;
 
-            colProduct.forEach((product) => {
-                count++;
-                if (product['type'] != null) {
-                    optionHtml +=
-                        `<option value="${product.type}" id="type"> ${product.type}</option>`
-                }
-            });
-            html = `
-                <select>
-                    <option value="" disabled selected>Choose type</option>
-                    ${optionHtml}
-                </select>
-                <label>Type Food</label>`;
-
-            document.getElementById('allTypes').innerHTML = html || 'No types';
-            //Init FormSelect
-            var nodes = document.querySelectorAll('select');
-            var FormSelect = M.FormSelect.init(nodes, {});
+                document.getElementById('allTypes').innerHTML = html || 'No types';
+                //Init FormSelect
+                var nodes = document.querySelectorAll('select');
+                var FormSelect = M.FormSelect.init(nodes, {});
+            }
         });
+    },
+    owner: function () {
+        console.log('createPrTy.owner()');
+        navigateTo('owner');
     },
     addType: function () {
         console.log('createPrTy.addType()');
@@ -204,9 +380,12 @@ pages.createPrTy = {
         let elems = document.querySelector('select');
         var FormSelect = M.FormSelect.init(elems, {});
         let type = FormSelect.getSelectedValues();
-        console.log(type[0]);
+        let description = document.getElementById('description');
 
-        addProduct({ name: name, price: price, typePr: type[0] }, (err, newProduct) => {
+        addProduct({
+            name: name, price: price,
+            typePr: type[0], description: description
+        }, (err, newProduct) => {
             if (err) alert('Error: ' + err.stack);
             else {
                 pages.createPrTy.refresh();
