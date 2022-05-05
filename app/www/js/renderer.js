@@ -63,104 +63,101 @@ pages.register = {
 pages.home = {
     show: function (data) {
         console.log('home.show()');
-
-
         pages.home.refresh();
     },
     hide: function () { console.log('home.hide()'); },
-    //wip hay que modificar la introduccion de productos
     refresh: function () {
         console.log('home.refresh()');
-
         let htmlTabs = ``;
-        let htmlProducts = ``;
+        let htmlProductsHead = ``;
         let htmlProductsBody = ``;
         let htmlModal = ``;
         listMenu({}, (err, colProduct) => {
             if (err) alert('Error: ' + err.stack);
             else {
+                let type = [];
                 colProduct.forEach((product) => {
                     if (product['type'] != null) {
+                        type.push(product['type']);
                         htmlTabs += `
                         <li class="tab col s3"><a href="#${product.type}" style="color: #3454d1;"> ${product.type}</a></li>`
-                        htmlProducts += `
-                        <div id="${product.type}" class="col s12>
+                        htmlProductsHead += `
+                        <div id="${product.type}" class="col s12">
                             <div class="section">
                                 <h4 style="color: #3454D1;"> ${product.type}</h4>
                             </div>
                             <div class="divider"></div>
-                            <div id="products"></div>
-                        </div>`;
-                    } else if (product['typePr'] != null) {
-                        console.log(product);
-                        let id = product._id;
-                        htmlProductsBody += `
-                        <a class="modal-trigger" href=#modal${id}">
-                            <div class="section flex-h" style="color: #3454D1;">
-                                <div>
-                                    <h5> ${product.name} </h5>
-                                    <span> ${product.description}</span>
-                                </div>
-                                <img class="responsive-img" style="width: 250px; align-self: flex-end;"
-                                    src="images/1entrante.jpg"">
-                            </div>
-                        </a>`;
-                        //Hay que arreglar que el modal se esconda bien y que se active al hacer click sobre el producto
-                        //Also hay qe comrpobar que la interfaz sigue funcionando con mas tipos y productos
-                        htmlModal += `
-                        <div id="modal${id} class="modal">
-                            <div class="modal-content">
-                                <div class="col s12 m6">
-                                    <div class="card">
-                                        <div class="card-image">
-                                            <img src="images/1entrante.jpg" style="width: 75%; margin-left: auto; margin-right: auto;">
-                                        </div>
-                                        <div class="divider"></div>
-                                        <div class="card-content">
-                                            <div style="color: #3454D1;">
-                                                <div>
-                                                    <h5> ${product.name} </h5>
-                                                    <span style="margin-left: 25px"> ${product.description} </span>
-                                                </div>
-                                            </div>
-                                            <div class="divider" style="margin: 20px"></div>
-                                            <div style="color: #3454D1;">
-                                                <div>
-                                                    <h5> Add Note </h5>
-                                                    <form class="col s12" style="margin-left: 25px">
-                                                        <div class="input-field col s12">
-                                                            <textarea id="textarea" class="materialize-textarea"></textarea>
-                                                            <label for="textarea1"> Note </label>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class"card-action"
-                                            style="display: flex; justify-content: space-between; align-items: center;">
-                                            <div>
-                                                <a class="waves-teal btn-flat" style="margin: 0px; color: #070707">
-                                                    <i class="material-icons"> remove </i>
-                                                </a>
-                                                <input type="number" style="width: 50%; border-style: groove; text-align: center;" value="0">
-                                                <a class="waves-teal btn-flat" style="margin: 0px; color #070707;">
-                                                    <i class="material-icons"> add </i>
-                                                </a>
-                                            </div>
-                                            <a href="#" onclick="pages.login.login()" class="waves-effect waves-light btn"
-                                                style="width:25%; background-colour: #3454D1"> Ok </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <div id="products_${product.type}"></div>
                         </div>`;
                     }
                 });
-                console.log(htmlProductsBody);
-                console.log(htmlModal);
                 document.getElementById('types').innerHTML = htmlTabs || 'No types';
-                document.getElementById('producTab').innerHTML = htmlProducts || 'No types';
-                document.getElementById('products').innerHTML = htmlProductsBody || 'No products';
+                document.getElementById('producTab').innerHTML = htmlProductsHead || 'No types';
+
+                colProduct.forEach((product) => {
+                    if (product['typePr'] != null) {
+                        htmlProductsBody = `
+                        <a id="products_${product.typePr}Pr" class="modal-trigger" href="#modal${product._id}" style="">
+                            <div class="section flex-h" style="color: #3454D1;">
+                                <div>
+                                    <h5>${product.name}</h5>
+                                    <span>${product.description} </span>
+                                </div>
+                                <img class="responsive-img" style="width: 250px; align-self: flex-end;"
+                                src="images/1entrante.jpg">
+                            </div>
+                        </a>`;
+                        htmlModal += `
+                        <div id="modal${product._id}" class="modal">
+                        <div class="modal-content">
+                            <div class="col s12 m6">
+                                <div class="card">
+                                    <div class="card-image">
+                                        <img src="images/1entrante.jpg" style="width: 75%; margin-left: auto; margin-right: auto;">
+                                    </div>
+                                    <div class="divider"></div>
+                                    <div class="card-content">
+                                        <div style="color: #3454D1;">
+                                            <div>
+                                                <h5>${product.name}</h5>
+                                                <span style="margin-left: 25px">${product.description} </span>
+                                            </div>
+                                        </div>
+                                        <div class="divider" style="margin: 20px;"></div>
+                                        <div style="color: #3454D1;">
+                                            <div>
+                                                <h5>Add Note</h5>
+                                                <form class="col s12" style="margin-left: 25px">
+                                                    <div class="input-field col s12">
+                                                        <textarea id="textarea1" class="materialize-textarea"></textarea>
+                                                        <label for="textarea1">Note</label>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-action"
+                                        style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <a class="waves-teal btn-flat" style="margin: 0px; color: #070707;">
+                                                <i class="material-icons">remove</i>
+                                            </a>
+                                            <input id="qty" type="number" style="width: 50%;border-style: groove; text-align: center;"
+                                                value="0">
+                                            <a class="waves-teal btn-flat" style="margin: 0px; color: #070707;">
+                                                <i class="material-icons">add</i>
+                                            </a>
+                                        </div>
+                                        <a href="#" onclick="pages.home.createOrder('${product._id}')" class="waves-effect waves-light btn"
+                                            style="width:25%;background-color:#3454D1;">Ok</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                    document.getElementById(`products_${product.typePr}`).insertAdjacentHTML('afterend', htmlProductsBody);
+                    }                    
+                });
                 document.getElementById('modals').innerHTML = htmlModal || 'No modal found';
 
                 // Init sidenav
@@ -172,6 +169,20 @@ pages.home = {
                 //Init tabs
                 var nodes = document.querySelectorAll('.tabs');
                 var tabs = M.Tabs.init(nodes, {});
+            }
+        });
+    },
+    createOrder: function(productID){
+        /*Hay que arreglar las variables qty y notes, se queda guardado el anterior
+        Creo que es porque se queda guardado el primer valor, habra que resetear estos 
+        campos despues de ejecutar la funcion*/
+        console.log(`home.createOrder(${productID})`);
+        let qty = document.getElementById('qty').value;
+        let notes = document.getElementById('textarea1').value;
+        createOrder(token,{productId: productID, qty: qty, notes: notes},(err, cb)=>{
+            if(err) alert('Error: '+err.stack);
+            else{
+                alert('Product added to the order');
             }
         });
     },
@@ -380,7 +391,7 @@ pages.createPrTy = {
         let elems = document.querySelector('select');
         var FormSelect = M.FormSelect.init(elems, {});
         let type = FormSelect.getSelectedValues();
-        let description = document.getElementById('description');
+        let description = document.getElementById('description').value;
 
         addProduct({
             name: name, price: price,

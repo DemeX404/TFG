@@ -464,7 +464,9 @@ function deleteType(typeId, cb) {
 function addProduct(newProduct, cb) {
     console.log('connected')
     if (!newProduct.name) cb(new Error('Property name missing'));
-    else if (!newProduct.price) cb(new Error('Property price missing'));
+    else if(!newProduct.price) cb(new Error('Property price missing'));
+    else if(!newProduct.typePr) cb(new Error('Property typePr missing'));
+    else if (!newProduct.description) cb(new Error('Property description missing'));
     else {
         MongoClient.connect(url, function (err, client) {
             if (err) cb(err);
