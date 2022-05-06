@@ -114,62 +114,67 @@ function login(name, password, cb) {
 
 //Ok
 function updateUser(token, user, cb) {
-    MongoClient.connect(url, function (err, client) {
-        if (err) cb(err);
-        else {
-            console.log('connected.');
-            function _cb(err, result) {
-                client.close();
-                cb(err, result);
+    if (!user.name) cb(new Error('Property name missing'));
+    else if (!user.surname) cb(new Error('Property surname missing'));
+    else if (!user.password) cb(new Error('Property password missing'));
+    else if (!user.phone) cb(new Error('Property phone missing'));
+    else {
+        MongoClient.connect(url, function (err, client) {
+            if (err) cb(err);
+            else {
+                console.log('connected.');
+                function _cb(err, result) {
+                    client.close();
+                    cb(err, result);
+                }
+
+                var db = client.db('e-order');
+                var col = db.collection('customer');
+
+                let query = { _id: new mongodb.ObjectId(token) };
+                col.findOne(query, (err, result) => {
+                    if (err) _cb(err);
+                    else {
+                        if (result.type == 'employee') {
+                            col.updateOne(query, {
+                                $set: {
+                                    "name": user.name,
+                                    "surname": user.surname,
+                                    "dni": user.dni,
+                                    "password": user.password,
+                                    "phone": user.phone
+                                }
+                            }, (err, _user) => {
+                                if (err) _cb(err);
+                                else {
+                                    console.log(new Error('Update Finished'));
+                                }
+                            });
+                        } else {
+                            col.updateOne(query, {
+                                $set: {
+                                    "name": user.name,
+                                    "surname": user.surname,
+                                    "email": user.email,
+                                    "password": user.password,
+                                    "phone": user.phone
+                                }
+                            }, (err, _user) => {
+                                if (err) _cb(err);
+                                else {
+                                    console.log(new Error('Update Finished'));
+                                }
+                            });
+                        }
+                    }
+                })
             }
 
-            var db = client.db('e-order');
-            var col = db.collection('customer');
-
-            let query = { _id: new mongodb.ObjectId(token) };
-            col.findOne(query, (err, result) => {
-                if (err) _cb(err);
-                else {
-                    if (result.type == 'employee') {
-                        col.updateOne(query, {
-                            $set: {
-                                "name": user.name,
-                                "surname": user.surname,
-                                "dni": user.dni,
-                                "password": user.password,
-                                "phone": user.phone
-                            }
-                        }, (err, _user) => {
-                            if (err) _cb(err);
-                            else {
-                                console.log(new Error('Update Finished'));
-                            }
-                        });
-                    } else {
-                        col.updateOne(query, {
-                            $set: {
-                                "name": user.name,
-                                "surname": user.surname,
-                                "email": user.email,
-                                "password": user.password,
-                                "phone": user.phone
-                            }
-                        }, (err, _user) => {
-                            if (err) _cb(err);
-                            else {
-                                console.log(new Error('Update Finished'));
-                            }
-                        });
-                    }
-                }
-            })
-        }
-
-    });
+        });
+    }
 }
 
 //Ok
-//Hay que plantar como voy a visualizar los datos 
 function listMenu(opts, cb) {
 
     MongoClient.connect(url, function (err, client) {
@@ -214,83 +219,85 @@ function listMenu(opts, cb) {
 
 //Ok
 function createOrder(token, content, cb) {
-    MongoClient.connect(url, function (err, client) {
-        if (err) cb(err);
-        else {
-            console.log('connected.');
-            function _cb(err, result) {
-                client.close();
-                cb(err, result);
-            }
-            var db = client.db('e-order');
-            var col = db.collection('customer');
+    if (!content.qty > 0) cb(new Error('Quantity should be more than 0'));
+    else {
+        MongoClient.connect(url, function (err, client) {
+            if (err) cb(err);
+            else {
+                console.log('connected.');
+                function _cb(err, result) {
+                    client.close();
+                    cb(err, result);
+                }
+                var db = client.db('e-order');
+                var col = db.collection('customer');
 
-            //Localizamos al usuario que esta creando la orden
-            col.findOne({ _id: new mongodb.ObjectId(token) }, (err, _user) => {
-                if (err) _cb(err);
-                else {
-                    console.log(_user.orders.length);
-                    //En caso que el usuario no tenga ordenes anteriores creamos una nueva
-                    if (_user.orders.length == 0) addEntry(token, content);
-                    //Recorremos todas las ordenes del usuario en busca de la que tiene abierta actualmente
-                    _user.orders.forEach((orderID) => {
+                //Localizamos al usuario que esta creando la orden
+                col.findOne({ _id: new mongodb.ObjectId(token) }, (err, _user) => {
+                    if (err) _cb(err);
+                    else {
+                        //En caso que el usuario no tenga ordenes anteriores creamos una nueva
+                        if (_user.orders.length == 0) addEntry(token, content);
+                        //Recorremos todas las ordenes del usuario en busca de la que tiene abierta actualmente
                         let flag = _user.orders.length;
-                        col.findOne({ _id: new mongodb.ObjectId(orderID) }, (err, _order) => {
-                            if (err) _cb(err);
-                            else {
-                                //Encontramos la orden abierta y añadimos el pedio
-                                if (_order.paid == false) {
-                                    content['id'] = _order.productOrder.length;
-                                    col.updateOne({ _id: _order._id }, {
-                                        $push: { "productOrder": { $each: [content] } }
-                                    }, (err, result) => {
+                        _user.orders.forEach((orderID) => {
+                            col.findOne({ _id: new mongodb.ObjectId(orderID) }, (err, _order) => {
+                                if (err) _cb(err);
+                                else {
+                                    //Encontramos la orden abierta y añadimos el pedio
+                                    if (_order.paid == false) {
+                                        content['id'] = _order.productOrder.length;
+                                        col.updateOne({ _id: _order._id }, {
+                                            $push: { "productOrder": { $each: [content] } }
+                                        }, (err, result) => {
+                                            if (err) _cb(err);
+                                            else {
+                                                _cb(null, {
+                                                    id: _order._id.toHexString(), refClient: _order.refClient,
+                                                    productOrder: _order.productOrder, paid: _order.paid
+                                                });
+                                            }
+                                        });
+                                    } else {
+                                        flag = flag - 1;
+                                    }
+                                    //En caso de no encontrar ninguna orden abierta creamos una nueva
+                                    if (flag == 0) {
+                                        addEntry(token, content);
+                                    }
+                                }
+                            });
+                        });
+                        //Añadir una nueva entra a la coleccion
+                        function addEntry(token, content) {
+                            let newEntry = {}
+                            content['id'] = 0;
+                            newEntry['refClient'] = token;
+                            newEntry['paid'] = false;
+                            newEntry['productOrder'] = [content];
+                            col.insertOne(newEntry, (err, result) => {
+                                if (err) _cb(err);
+                                else {
+                                    col.updateOne({ _id: _user._id }, {
+                                        $push: { "orders": result.insertedId.toHexString() }
+                                    }, (err, _result) => {
                                         if (err) _cb(err);
                                         else {
-                                            _cb(new Error('Add product to the current order'));
+                                            _cb(null, {
+                                                id: result.insertedId.toHexString(), refClient: newEntry.refClient,
+                                                productOrder: newEntry.productOrder, paid: newEntry.paid
+                                            });
                                         }
                                     });
-                                } else {
-                                    flag = flag - 1;
                                 }
-
-                                //En caso de no encontrar ninguna orden abierta creamos una nueva
-                                if (flag == 0) {
-                                    addEntry(token, content);
-                                }
-                            }
-                        });
-                    });
-                    //Añadir una nueva entra a la coleccion
-                    function addEntry(token, content) {
-                        let newEntry = {}
-                        content['id'] = 0;
-                        newEntry['refClient'] = token;
-                        newEntry['paid'] = false;
-                        newEntry['productOrder'] = [content];
-                        console.log('Creando nueva entrada');
-                        col.insertOne(newEntry, (err, result) => {
-                            if (err) _cb(err);
-                            else {
-                                col.updateOne({ _id: _user._id }, {
-                                    $push: { "orders": result.insertedId.toHexString() }
-                                }, (err, _result) => {
-                                    if (err) _cb(err);
-                                    else {
-                                        _cb(null, {
-                                            id: result.insertedId.toHexString(), refClient: result.refClient,
-                                            productOrder: result.productOrder, paid: result.paid
-                                        });
-                                    }
-                                });
-                            }
-                        });
+                            });
+                        }
                     }
-                }
-            });
-        }
+                });
+            }
 
-    });
-
+        });
+    }
 }
 
 //Ok
@@ -327,7 +334,7 @@ function editOrder(orderID, content, cb) {
 }
 
 //Ok
-function printTicket(orderID, cb) {
+function printTicketOLD(orderID, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err)
         else {
@@ -350,6 +357,61 @@ function printTicket(orderID, cb) {
                         });
                     });
                     _cb(null, orderArray);
+                }
+            });
+        }
+    });
+}
+
+function printTicket(token, cb) {
+    MongoClient.connect(url, function (err, client) {
+        if (err) cb(err)
+        else {
+            console.log('connected.');
+            function _cb(err, result) {
+                client.close();
+                cb(err, result);
+            }
+
+            var db = client.db('e-order');
+            var colCustomer = db.collection('customer');
+            var colProduct = db.collection('product');
+
+            var orderArray = [];
+
+            colCustomer.findOne({ _id: new mongodb.ObjectId(token) }, (err, _user) => {
+                if (err) _cb(err);
+                else {
+                    _user.orders.forEach((ordersID) => {
+                        colCustomer.findOne({ _id: new mongodb.ObjectId(ordersID) }, (err, _order) => {
+                            if (err) _cb(err);
+                            else {
+                                if (_order.paid == false) {
+                                    let flag = _order.productOrder.length;
+                                    _order.productOrder.forEach((productID) => {
+                                        colProduct.findOne({ _id: new mongodb.ObjectId(productID.productId) }, (err, _product) => {
+                                            if (err) _cb(err);
+                                            else {
+                                                orderArray.push({
+                                                    qty: productID.qty, notes: productID.notes, name: _product.name,
+                                                    price: _product.price, description: _product.description
+                                                });
+                                                //No me gusta esta solucion pero es funcional
+                                                flag--;
+                                                if (flag == 0) {
+                                                    close(orderArray);
+                                                }
+                                            }
+                                        });
+                                    });
+                                }
+                                function close(result) {
+                                    _cb(null, result);
+                                }
+                            }
+                        });
+                    });
+
                 }
             });
         }
@@ -464,8 +526,8 @@ function deleteType(typeId, cb) {
 function addProduct(newProduct, cb) {
     console.log('connected')
     if (!newProduct.name) cb(new Error('Property name missing'));
-    else if(!newProduct.price) cb(new Error('Property price missing'));
-    else if(!newProduct.typePr) cb(new Error('Property typePr missing'));
+    else if (!newProduct.price) cb(new Error('Property price missing'));
+    else if (!newProduct.typePr) cb(new Error('Property typePr missing'));
     else if (!newProduct.description) cb(new Error('Property description missing'));
     else {
         MongoClient.connect(url, function (err, client) {
@@ -607,46 +669,6 @@ function updateSales(product, cb) {
                     _cb('Sales update')
                 }
             });
-        }
-    });
-}
-
-function showOrder(orderID, cb) {
-    MongoClient.connect(url, function (err, client) {
-        if (err) cb(err)
-        else {
-            console.log('connected.');
-            function _cb(err, result) {
-                client.close();
-                cb(err, result);
-            }
-
-            var db = client.db('e-order');
-            var colCustomer = db.collection('customer');
-            var colProduct = db.collection('product');
-            var orderArray = [];
-            var result = [];
-
-            colCustomer.findOne({ _id: new mongodb.ObjectId(orderID) }, (err, _order) => {
-                if (err) _cb(err);
-                else {
-                    _order.productOrder.forEach((order) => {
-                        console.log(order.productId);
-                        orderArray.push({id: order._id});
-                    });
-                    colProduct.findOne({ _id: new mongodb.ObjectId(order.productId) }, (err, _product) => {
-                        if (err) _cb(err);
-                        else {
-                            console.log(_product);
-                            orderArray.push({
-                                id: _product.id, name: _product.name, price: _product.price, typePr: _productPr.drinks
-                            });
-                        }
-                    });
-                    _cb(null, orderArray);
-                }
-            });
-
         }
     });
 }

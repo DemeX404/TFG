@@ -60,6 +60,7 @@ pages.register = {
         });
     }
 };
+//Ok
 pages.home = {
     show: function (data) {
         console.log('home.show()');
@@ -129,7 +130,7 @@ pages.home = {
                                                 <h5>Add Note</h5>
                                                 <form class="col s12" style="margin-left: 25px">
                                                     <div class="input-field col s12">
-                                                        <textarea id="textarea1" class="materialize-textarea"></textarea>
+                                                        <textarea id="textarea_${product._id}" class="materialize-textarea"></textarea>
                                                         <label for="textarea1">Note</label>
                                                     </div>
                                                 </form>
@@ -139,12 +140,12 @@ pages.home = {
                                     <div class="card-action"
                                         style="display: flex; justify-content: space-between; align-items: center;">
                                         <div>
-                                            <a class="waves-teal btn-flat" style="margin: 0px; color: #070707;">
+                                            <a onclick="pages.home.decrement('${product._id}')" class="waves-teal btn-flat" style="margin: 0px; color: #070707;">
                                                 <i class="material-icons">remove</i>
                                             </a>
-                                            <input id="qty" type="number" style="width: 50%;border-style: groove; text-align: center;"
+                                            <input id="qty_${product._id}" disabled type="number" style="width: 50%;border-style: groove; text-align: center;"
                                                 value="0">
-                                            <a class="waves-teal btn-flat" style="margin: 0px; color: #070707;">
+                                            <a onclick="pages.home.increment('${product._id}')" class="waves-teal btn-flat" style="margin: 0px; color: #070707;">
                                                 <i class="material-icons">add</i>
                                             </a>
                                         </div>
@@ -155,8 +156,8 @@ pages.home = {
                             </div>
                         </div>
                     </div>`;
-                    document.getElementById(`products_${product.typePr}`).insertAdjacentHTML('afterend', htmlProductsBody);
-                    }                    
+                        document.getElementById(`products_${product.typePr}`).insertAdjacentHTML('afterend', htmlProductsBody);
+                    }
                 });
                 document.getElementById('modals').innerHTML = htmlModal || 'No modal found';
 
@@ -172,16 +173,37 @@ pages.home = {
             }
         });
     },
-    createOrder: function(productID){
-        /*Hay que arreglar las variables qty y notes, se queda guardado el anterior
-        Creo que es porque se queda guardado el primer valor, habra que resetear estos 
-        campos despues de ejecutar la funcion*/
+    increment: function (productID) {
+        console.log('home.increment()');
+        document.getElementById(`qty_${productID}`).stepUp();
+
+    },
+    decrement: function (productID) {
+        console.log('home.decrement()');
+        document.getElementById(`qty_${productID}`).stepDown();
+    },
+    createOrder: function (productID) {
         console.log(`home.createOrder(${productID})`);
-        let qty = document.getElementById('qty').value;
-        let notes = document.getElementById('textarea1').value;
-        createOrder(token,{productId: productID, qty: qty, notes: notes},(err, cb)=>{
-            if(err) alert('Error: '+err.stack);
-            else{
+        let qty = +document.getElementById(`qty_${productID}`).value;
+        let notes = document.getElementById(`textarea_${productID}`).value;
+        let htmlBasket = ``;
+
+        createOrder(token, { productId: productID, qty: qty, notes: notes }, (err, _order) => {
+            if (err) alert('Error: ' + err.stack);
+            else {
+                let flag = document.getElementById('viewBasket');
+                if (!flag) {
+                    htmlBasket = `
+                    <div id="viewBasket"style="display: flex; justify-content: center; margin-top: 20px;">
+                        <a onclick="pages.home.order('${_order.id}')" class="waves-effect waves-light btn"
+                            style="width: 50%; background-color:#3454D1; color:#EFEFEF">View Basket</a>
+                    </div>
+                    `;
+                    document.getElementById('basketButton').innerHTML = htmlBasket;
+                }
+
+                document.getElementById(`qty_${productID}`).value = '0';
+                document.getElementById(`textarea_${productID}`).value = '';
                 alert('Product added to the order');
             }
         });
@@ -198,17 +220,51 @@ pages.home = {
         console.log('home.profile()');
         navigateTo('profile');
     },
-    order: function () {
+    order: function (orderID) {
         console.log('home.order()');
+        pages.order.orderID(orderID);
         navigateTo('order');
     },
 };
+//Ok
 pages.profile = {
-    show: function (data) { console.log('profile.show()'); },
+    show: function (data) {
+        console.log('profile.show()');
+
+        // Init sidenav
+        var nodes = document.querySelectorAll('.sidenav');
+        var sidenavs = M.Sidenav.init(nodes, { edge: 'left' });
+
+        //Se rellenan los campos con la informaciçon del usuario
+        document.getElementById('name').value = user.name;
+        document.getElementById('surname').value = user.surname;
+        document.getElementById('email').value = user.email;
+        document.getElementById('phone').value = user.phone;
+        document.getElementById('password').value = user.password;
+    },
     hide: function () { console.log('profile.hide()'); },
     home: function () {
         console.log('profile.home()');
         navigateTo('home');
+    },
+    update: function () {
+        console.log('profile.update()');
+        let name = document.getElementById('name').value
+        let surname = document.getElementById('surname').value
+        let email = document.getElementById('email').value
+        let phone = document.getElementById('phone').value
+        let password = document.getElementById('password').value
+
+        updateUser(token, {
+            name: name, surname: surname, email: email,
+            phone: phone, password: password
+        },
+            (err, _user) => {
+                if (err) alert('Error: ' + err.stack);
+                else {
+                    alert('Usuario actualizado con exito');
+                }
+            });
     },
     login: function () {
         console.log('profile.login()');
@@ -220,7 +276,11 @@ pages.profile = {
     },
 };
 pages.order = {
-    show: function (data) { console.log('order.show()'); },
+    show: function (data) {
+        console.log('order.show()');
+        console.log(orderID);
+        
+    },
     hide: function () { console.log('order.hide()'); },
     ticket: function () {
         console.log('order.ticket()');
@@ -230,6 +290,10 @@ pages.order = {
         console.log('order.home()');
         navigateTo('home');
     },
+    orderID(orderID){
+        console.log('order.orderID()');
+        orderID = orderID;
+    }
 };
 pages.ticket = {
 
