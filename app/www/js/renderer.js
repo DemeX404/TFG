@@ -195,7 +195,7 @@ pages.home = {
                 if (!flag) {
                     htmlBasket = `
                     <div id="viewBasket"style="display: flex; justify-content: center; margin-top: 20px;">
-                        <a onclick="pages.home.order('${_order.id}')" class="waves-effect waves-light btn"
+                        <a onclick="pages.home.order()" class="waves-effect waves-light btn"
                             style="width: 50%; background-color:#3454D1; color:#EFEFEF">View Basket</a>
                     </div>
                     `;
@@ -220,9 +220,8 @@ pages.home = {
         console.log('home.profile()');
         navigateTo('profile');
     },
-    order: function (orderID) {
+    order: function () {
         console.log('home.order()');
-        pages.order.orderID(orderID);
         navigateTo('order');
     },
 };
@@ -275,13 +274,117 @@ pages.profile = {
         navigateTo('profile');
     },
 };
+//Ok
 pages.order = {
     show: function (data) {
         console.log('order.show()');
-        console.log(orderID);
-        
+
+        pages.order.refresh();
+    },
+    refresh: function () {
+        console.log('order.refresh()');
+
+        printTicket(token, (err, productList) => {
+            if (err) alert('Error: ' + err.stack);
+            else {
+                let totalPrice = 0;
+                let htmlProduct = ``;
+                let htmlModal = ``;
+                productList.forEach((product) => {
+                    let finalPrice = product.qty * product.price;
+                    totalPrice += finalPrice;
+                    htmlProduct += `
+                    <h4 style="text-decoration: underline;">${product.name} - ${product.qty}ud.</h4>
+                    <div style="display: flex;justify-content: space-between;align-items: center;">
+                        <div style="display: flex; align-items: center">
+                            <a id="product_${product.idPr}Pr" class="modal-trigger" href="#modal_${product.idPr}" style="">
+                                <i class="material-icons" style="color: #070707;">edit</i>
+                            </a>
+                            <div class="input-field col s12" style="margin: 20px">
+                                <textarea disabled id="textarea1" class="materialize-textarea" style="border-style: ridge;"></textarea>
+                                <label for="textarea1">${product.notes}</label>
+                            </div>
+                        </div>
+                        <h5>${finalPrice} \u20AC </h5>
+                    </div>`;
+
+                    htmlModal += `
+                        <div id="modal_${product.idPr}" class="modal">
+                        <div class="modal-content">
+                            <div class="col s12 m6">
+                                <div class="card">
+                                    <div class="card-image">
+                                        <img src="images/1entrante.jpg" style="width: 75%; margin-left: auto; margin-right: auto;">
+                                    </div>
+                                    <div class="divider"></div>
+                                    <div class="card-content">
+                                        <div style="color: #3454D1;">
+                                            <div>
+                                                <h5>${product.name}</h5>
+                                                <span style="margin-left: 25px">${product.description} </span>
+                                            </div>
+                                        </div>
+                                        <div class="divider" style="margin: 20px;"></div>
+                                        <div style="color: #3454D1;">
+                                            <div>
+                                                <h5>Add Note</h5>
+                                                <form class="col s12" style="margin-left: 25px">
+                                                    <div class="input-field col s12">
+                                                        <textarea id="textarea_${product.idPr}" class="materialize-textarea">${product.notes}</textarea>
+                                                        <label for="textarea1" class="active">Note</label>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-action"
+                                        style="display: flex; justify-content: space-between; align-items: center;">
+                                        <div>
+                                            <a onclick="pages.home.decrement('${product.idPr}')" class="waves-teal btn-flat" style="margin: 0px; color: #070707;">
+                                                <i class="material-icons">remove</i>
+                                            </a>
+                                            <input id="qty_${product.idPr}" disabled type="number" style="width: 50%;border-style: groove; text-align: center;"
+                                                value="${product.qty}">
+                                            <a onclick="pages.home.increment('${product.idPr}')" class="waves-teal btn-flat" style="margin: 0px; color: #070707;">
+                                                <i class="material-icons">add</i>
+                                            </a>
+                                        </div>
+                                        <a href="#" onclick="pages.order.editOrder('${product.idOrder}', '${product.idPr}')" class="waves-effect waves-light btn"
+                                            style="width:25%;background-color:#3454D1;">Ok</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+                let htmlTotalPrice = `<h5> ${totalPrice} \u20AC</h5>`;
+                document.getElementById('product').innerHTML = htmlProduct;
+                document.getElementById('finalPrice').innerHTML = htmlTotalPrice;
+                document.getElementById('modals').innerHTML = htmlModal;
+
+                // Init modal
+                var nodes = document.querySelectorAll('.modal');
+                var modals = M.Modal.init(nodes, {});
+            }
+        });
     },
     hide: function () { console.log('order.hide()'); },
+    editOrder: function (orderID, idPr) {
+        console.log('order.editOrder()');
+
+        let qty = document.getElementById(`qty_${idPr}`).value
+        let note = document.getElementById(`textarea_${idPr}`).value;
+
+        console.log(orderID);
+        editOrder(orderID, { productId: idPr, qty: qty, notes: note }, (err, result) => {
+            if (err) alert('Error: ' + err.stack);
+            else {
+                pages.order.refresh();
+                alert('Order edited');
+            }
+        });
+
+    },
     ticket: function () {
         console.log('order.ticket()');
         navigateTo('ticket');
@@ -289,15 +392,46 @@ pages.order = {
     home: function () {
         console.log('order.home()');
         navigateTo('home');
-    },
-    orderID(orderID){
-        console.log('order.orderID()');
-        orderID = orderID;
     }
 };
+/*Faltaria crear una funcion para cerrar la orden,
+osea pasar a false el paid y ya, que se activara con los botones 
+de metodo de pago*/
 pages.ticket = {
+    show: function (data) { 
+        console.log('ticket.show()');
 
-    show: function (data) { console.log('ticket.show()'); },
+        printTicket(token, (err, productList) => {
+            if (err) alert('Error: ' + err.stack);
+            else {
+                let totalPrice = 0;
+                let htmlTicket = ``;
+                productList.forEach((product) => {
+                    let finalPrice = product.qty * product.price;
+                    totalPrice += finalPrice;
+                    htmlTicket += `
+                        <div class="row" style="margin-bottom:5px; border-top: dotted;">
+                            <div class="col s3">
+                                <span>${product.name}</span>
+                            </div>
+                            <div class="col s3" style="padding-left:15%">
+                                <span>${product.price}</span>
+                            </div>
+                            <div class="col s3" style="padding-left:15%">
+                                <span>${product.qty}</span>
+                            </div>
+                            <div class="col s3" style="padding-left:15%">
+                                <span>${finalPrice}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                let htmlTotalPrice = `<h5> ${totalPrice} \u20AC</h5>`;
+                document.getElementById('ticket').innerHTML = htmlTicket;
+                document.getElementById('finalPrice').innerHTML = htmlTotalPrice;
+            }
+        });
+    },
     hide: function () { console.log('ticket.hide()'); },
     home: function () {
         console.log('ticket.home()');
@@ -400,6 +534,7 @@ pages.diningRoom = {
     hide: function () { console.log('diningRoom.hide()'); }
 };
 //Ok
+//Confirmar que el precio de los nuevos productos es un int
 pages.createPrTy = {
     show: function (data) {
         console.log('createPrTy.show()');
@@ -451,7 +586,7 @@ pages.createPrTy = {
     addProduct: function () {
         console.log('createPrTy.addProduct()');
         let name = document.getElementById('name').value;
-        let price = document.getElementById('price').value;
+        let price = +document.getElementById('price').value;
         let elems = document.querySelector('select');
         var FormSelect = M.FormSelect.init(elems, {});
         let type = FormSelect.getSelectedValues();
@@ -471,6 +606,7 @@ pages.createPrTy = {
 
 
 const fs = require('fs');
+const { BulkOperationBase } = require('mongodb');
 const pathViews = 'app/www';
 let currentPage = null;
 

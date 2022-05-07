@@ -34,35 +34,24 @@
                             </div>
                         </div>
                         <!-- Parte dinamica del ticket -->
-                        <div class="row" style="margin-bottom:5px; border-top: dotted;">
-                            <div class="col s3">
-                                <span>Product 1</span>
-                            </div>
-                            <div class="col s3" style="padding-left:15%">
-                                <span>1</span>
-                            </div>
-                            <div class="col s3" style="padding-left:15%">
-                                <span>10</span>
-                            </div>
-                            <div class="col s3" style="padding-left:15%">
-                                <span>10</span>
-                            </div>
-                        </div>
+                        <div id="ticket"></div>
                     </div>
                 </div>
                 <div class="divider" style="margin: 20px;"></div>
                 <div class="card-footer"
                     style="display: flex;justify-content: space-around;align-items: center;padding-bottom: 10px;">
                     <h5> Total </h5>
-                    <h5>10€</h5>
+                    <div id="finalPrice"></div>
                 </div>
                 <h6 style="display: flex; justify-content: center; padding-bottom: 15px;">Payment Method</h6>
                 <div style="display: flex; justify-content: center; padding-bottom: 20px;">
                     <a class="waves-effect waves-light btn" style="background: #EFEFEF; color: #070707">Cash</a>
                     <a class="waves-effect waves-light btn" style="background: #EFEFEF; color: #070707">Card</a>
                 </div>
-                <a onclick="pages.ticket.home()" class="waves-teal btn-flat" style="display: flex; justify-content: center;">
+                <a onclick="pages.ticket.home()" class="waves-teal btn-flat"
+                    style="display: flex; justify-content: center;">
                     <i class="material-icons right large" style="font-size: 48px;">home</i>
+                    Add Something
                 </a>
             </div>
     </div>

@@ -20,24 +20,15 @@
                     <a href="#" onclick="pages.order.home()">
                         <i class="material-icons" style="margin-top: 40px; color:#070707;">arrow_back</i>
                     </a>
-                    <h4 style="text-decoration: underline;">Starter 1</h4>
-                    <div style="display: flex;justify-content: space-between;align-items: center;">
-                        <form class="col s12" style="margin-left: 25px">
-                            <i class="material-icons">edit</i>
-                            <div class="input-field col s12">
-                                <textarea id="textarea1" class="materialize-textarea"></textarea>
-                                <label for="textarea1">Description</label>
-                            </div>
-                        </form>
-                        <h5>10€</h5>
-                    </div>
+                    <div id="product"></div>
                 </div>
                 <div class="divider" style="margin: 20px;"></div>
                 <div class="card-footer"
                     style="display: flex;justify-content: space-around;align-items: center;padding-bottom: 10px;">
                     <h5> Total </h5>
-                    <h5>10€</h5>
+                    <div id="finalPrice"></div>
                 </div>
+                <div id="modals"></div>
                 <div style="display: flex; justify-content: center; padding-bottom: 20px;">
                     <a onclick="pages.order.ticket()" class="waves-effect waves-light btn"
                         style="width: 25%; background-color:#3454D1; color:#EFEFEF">Order</a>

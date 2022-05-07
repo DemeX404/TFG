@@ -317,13 +317,14 @@ function editOrder(orderID, content, cb) {
             col.findOne({ _id: new mongodb.ObjectId(orderID) }, (err, _order) => {
                 if (err) _cb(err);
                 else {
-                    console.log(content);
-                    col.updateOne({ _id: new mongodb.ObjectId(orderID), "productOrder.id": content.id }, {
-                        $set: { "productOrder.$.productId": content.productId, "productOrder.$.qty": content.qty }
+                    col.updateOne({ _id: new mongodb.ObjectId(orderID), "productOrder.productId": content.productId }, {
+                        $set: { "productOrder.$.productId": content.productId, 
+                                "productOrder.$.qty": content.qty,
+                                "productOrder.$.notes": content.notes }
                     }, (err, result) => {
                         if (err) _cb(err);
                         else {
-                            _cb(new Error('Data updated'))
+                            _cb(null, ('Data updated'))
                         }
                     });
                 }
@@ -334,35 +335,6 @@ function editOrder(orderID, content, cb) {
 }
 
 //Ok
-function printTicketOLD(orderID, cb) {
-    MongoClient.connect(url, function (err, client) {
-        if (err) cb(err)
-        else {
-            console.log('connected.');
-            function _cb(err, result) {
-                client.close();
-                cb(err, result);
-            }
-
-            var db = client.db('e-order');
-            var col = db.collection('customer');
-            var orderArray = [];
-
-            col.findOne({ _id: new mongodb.ObjectId(orderID) }, (err, _order) => {
-                if (err) _cb(err);
-                else {
-                    _order.productOrder.forEach((order) => {
-                        orderArray.push({
-                            id: order.id, productId: order.productId, qty: order.qty
-                        });
-                    });
-                    _cb(null, orderArray);
-                }
-            });
-        }
-    });
-}
-
 function printTicket(token, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err)
@@ -393,7 +365,7 @@ function printTicket(token, cb) {
                                             if (err) _cb(err);
                                             else {
                                                 orderArray.push({
-                                                    qty: productID.qty, notes: productID.notes, name: _product.name,
+                                                    idOrder: _order._id.toHexString(), idPr: _product._id.toHexString(), qty: productID.qty, notes: productID.notes, name: _product.name,
                                                     price: _product.price, description: _product.description
                                                 });
                                                 //No me gusta esta solucion pero es funcional
