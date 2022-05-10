@@ -394,11 +394,9 @@ pages.order = {
         navigateTo('home');
     }
 };
-/*Faltaria crear una funcion para cerrar la orden,
-osea pasar a false el paid y ya, que se activara con los botones 
-de metodo de pago*/
+//Ok
 pages.ticket = {
-    show: function (data) { 
+    show: function (data) {
         console.log('ticket.show()');
 
         printTicket(token, (err, productList) => {
@@ -406,6 +404,7 @@ pages.ticket = {
             else {
                 let totalPrice = 0;
                 let htmlTicket = ``;
+                let htmlPaymentMethod = ``;
                 productList.forEach((product) => {
                     let finalPrice = product.qty * product.price;
                     totalPrice += finalPrice;
@@ -425,14 +424,31 @@ pages.ticket = {
                             </div>
                         </div>
                     `;
+                    htmlPaymentMethod = `
+                    <a onclick="pages.ticket.paymentMethod('${product.idOrder}','cash')" class="waves-effect waves-light btn" style="background: #EFEFEF; color: #070707">Cash</a>
+                    <a onclick="pages.ticket.paymentMethod('${product.idOrder}','card')" class="waves-effect waves-light btn" style="background: #EFEFEF; color: #070707">Card</a>
+                    `;
                 });
                 let htmlTotalPrice = `<h5> ${totalPrice} \u20AC</h5>`;
                 document.getElementById('ticket').innerHTML = htmlTicket;
                 document.getElementById('finalPrice').innerHTML = htmlTotalPrice;
+                document.getElementById('paymentMethods').innerHTML = htmlPaymentMethod;
             }
         });
     },
     hide: function () { console.log('ticket.hide()'); },
+    paymentMethod: function (orderID, method) {
+        console.log('ticket.paymentMethod()');
+
+        let content = { methodPay: method };
+        editOrder(orderID, content, (err, result) => {
+            if (err) alert('Error: ' + err.stack);
+            else {
+                alert('Metho payment ' + method);
+            }
+        });
+
+    },
     home: function () {
         console.log('ticket.home()');
         navigateTo('home');
@@ -477,10 +493,6 @@ pages.owner = {
     creatEmpl: function () {
         console.log('owner.creatEmpl()');
         navigateTo('creatEmpl');
-    },
-    createPrTy: function () {
-        console.log('owner.createPrTy()');
-        navigateTo('createPrTy');
     }
 };
 //Ok
@@ -514,24 +526,178 @@ pages.choose = {
     hide: function () { console.log('choose.hide()'); },
     dining: function () {
         console.log('choose.dining()');
-        navigateTo('dining');
+        navigateTo('diningRoom');
     },
     kitchen: function () {
-        console.log('choose.kitchen()');;
+        console.log('choose.kitchen()');
         navigateTo('kitchen');
     }
 };
+//ok
 pages.kitchen = {
-    show: function (data) { console.log('kitchen.show()'); },
+    show: function (data) {
+        console.log('kitchen.show()');
+
+        pages.kitchen.refresh();
+    },
     hide: function () { console.log('kitchen.hide()'); },
+    refresh: function () {
+        console.log('kitchen.refresh()');
+
+        let htmlBody = ``;
+        let htmlModal = ``;
+        let count = 0;
+        openOrders((err, _openOrders) => {
+            if (err) alert('Error: ' + err.stack);
+            else {
+                _openOrders.forEach((_user) => {
+                    printTicket(_user.refClient, (err, order) => {
+                        if (err) alert('Error: ' + err.stack);
+                        else {
+                            htmlBody += `
+                            <div style="display: flex;justify-content: space-between;margin-left: 5%;margin-right: 5%;">
+                                <label>
+                                    <input onclick="pages.kitchen.checkbox('${order[0].idOrder}')" id="done_${order[0].idOrder}" type="checkbox" />
+                                    <span style="text-decoration: underline;color: #070707;font-size: 24px;">Order ${count}</span>
+                                </label>
+                                <span>N&#176 Table ${_user.num_table} </span>
+                                
+                            </div>
+                            `;
+                            order.forEach((product) => {
+                                let htmlAlert = ``;
+                                if (product.notes != "") {
+                                    htmlAlert = `
+                                    <a id="${product.idOrder}-${product.idPr}" class="modal-trigger" href="#modal_${product.idOrder}-${product.idPr}" style="">
+                                        <i class="material-icons" style="vertical-align: middle;font-size: 20px; color:red">warning</i>
+                                    </a>
+                                    `;
+                                    htmlModal += `
+                                    <div id="modal_${product.idOrder}-${product.idPr}" class="modal">
+                                        <div class="modal-content">
+                                            <h4>Note</h4>
+                                            <p>${product.notes}</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <a href="#!" class="modal-close waves-effect waves-green btn-flat">Close</a>
+                                        </div>
+                                    </div>
+                                    `;
+                                }
+                                htmlBody += `
+                                <div style="display: flex; flex-direction: column; margin-left: 10%;">
+                                    <label>
+                                        <input type="checkbox" />
+                                        <span style="color: #070707;">${product.qty} x ${product.name}</span>
+                                        ${htmlAlert}
+                                    </label>
+                                </div>
+                                `;
+                            });
+                            count++;
+
+                            document.getElementById('body').innerHTML = htmlBody;
+                            document.getElementById('modals').innerHTML = htmlModal;
+
+                            // Init modal
+                            var nodes = document.querySelectorAll('.modal');
+                            var modals = M.Modal.init(nodes, {});
+                        }
+                    });
+                });
+            }
+        });
+    },
     login: function () {
         console.log('kitchen.login()');
         navigateTo('login');
+    },
+    checkbox: function (id) {
+        console.log('kitchen.checkbox()');
+        let checkbox = document.getElementById(`done_${id}`)
+
+        if (checkbox.checked) {
+            //Esto por ahora no funciona wip
+           // pages.diningRoom.kitchen(true);
+        };
     }
 };
 pages.diningRoom = {
-    show: function (data) { console.log('diningRoom.show()'); },
-    hide: function () { console.log('diningRoom.hide()'); }
+    show: function (data) {
+        console.log('diningRoom.show()');
+
+        pages.diningRoom.refresh();
+    },
+    hide: function () { console.log('diningRoom.hide()'); },
+    refresh: function () {
+        console.log('diningRoom.refresh()');
+
+        let htmlBody = ``;
+
+        openOrders((err, _openOrders) => {
+            if (err) alert('Error: ' + err.stack);
+            else {
+                _openOrders.forEach((_order) => {
+                    printTicket(_order.refClient, (err, order) => {
+                        if (err) alert('Error: ' + err.stack);
+                        else {
+                            let finalPrice = 0;
+
+                            order.forEach((product) => {
+                                finalPrice += product.qty * product.price
+                            });
+                            if (_order.methodPay != 'none') {
+                                htmlBody += `
+                                <div class="row" style="margin-bottom:5px; border-top: dotted;">
+                                    <div class="col s3">
+                                        <a onclick="pages.ticket.home()" class="waves-teal btn-flat">
+                                            <i class="material-icons">delete</i>
+                                        </a>
+                                        <span>${_order.num_table}</span>
+                                    </div>
+                                    <div class="col s3" style="padding-left:15%">
+                                        <span>${_order.methodPay}</span>
+                                    </div>
+                                    <div class="col s3" style="padding-left:15%">
+                                        <span>${finalPrice}</span>
+                                    </div>
+                                </div>
+                                `;
+                            }
+
+                            document.getElementById('body').innerHTML = htmlBody;
+                        }
+                    });
+                });
+            }
+        });
+    },
+    login: function () {
+        console.log('diningRoom.login()');
+        navigateTo('login');
+    },
+    kitchen: function (bool) {
+        //Esto por el momento no funciona a lo mejor la generar la conexion puede funcionar
+        let htmlKitchen = ``;
+
+        if (bool) {
+            htmlKitchen = `
+            <a onclick="pages.diningRoom.kitchen(false)" class="btn-flay">
+                <div style="display: flex;justify-content: center;align-items: center;">
+                    <h4 style="color:red">Kitchen</h4>
+                    <i class="material-icons" style="padding-top: 3%; padding-left: 10px; color:red">warning</i>
+                </div>
+            </a>
+        `;
+        }else{
+            htmlKitchen = ``;
+        }
+
+        document.getElementById('kitchen').innerHTML = htmlKitchen;
+
+        pages.diningRoom.refresh()
+
+    }
 };
 //Ok
 //Confirmar que el precio de los nuevos productos es un int

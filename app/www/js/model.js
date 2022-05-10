@@ -82,7 +82,7 @@ function addUser(user, cb) {
     }
 }
 
-//Aqui tengo que plantear como hacer para distinguir entre usuarios normales y trabajadores
+//Ok
 function login(name, password, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err);
@@ -270,11 +270,14 @@ function createOrder(token, content, cb) {
                         });
                         //Añadir una nueva entra a la coleccion
                         function addEntry(token, content) {
-                            let newEntry = {}
+                            let newEntry = {};
+                            let randomNum = Math.floor(Math.random() * (20 - 1 + 1) - 1);
                             content['id'] = 0;
                             newEntry['refClient'] = token;
                             newEntry['paid'] = false;
+                            newEntry['num_table'] = randomNum;
                             newEntry['productOrder'] = [content];
+                            newEntry['methodPay'] = 'none';
                             col.insertOne(newEntry, (err, result) => {
                                 if (err) _cb(err);
                                 else {
@@ -314,25 +317,39 @@ function editOrder(orderID, content, cb) {
             var db = client.db('e-order');
             var col = db.collection('customer');
 
-            col.findOne({ _id: new mongodb.ObjectId(orderID) }, (err, _order) => {
-                if (err) _cb(err);
-                else {
-                    col.updateOne({ _id: new mongodb.ObjectId(orderID), "productOrder.productId": content.productId }, {
-                        $set: { "productOrder.$.productId": content.productId, 
+            if (content.methodPay) {
+                col.findOneAndUpdate({_id: new mongodb.ObjectId(orderID)},{
+                    $set: {methodPay: content.methodPay}
+                }, (err, _order) =>{
+                    if(err) _cb(err);
+                    else{
+                        _cb(null, 'Data updated');
+                    }
+                });
+            } else {
+                col.findOne({ _id: new mongodb.ObjectId(orderID) }, (err, _order) => {
+                    if (err) _cb(err);
+                    else {
+                        col.updateOne({ _id: new mongodb.ObjectId(orderID), "productOrder.productId": content.productId }, {
+                            $set: {
+                                "productOrder.$.productId": content.productId,
                                 "productOrder.$.qty": content.qty,
-                                "productOrder.$.notes": content.notes }
-                    }, (err, result) => {
-                        if (err) _cb(err);
-                        else {
-                            _cb(null, ('Data updated'))
-                        }
-                    });
-                }
-            });
+                                "productOrder.$.notes": content.notes
+                            }
+                        }, (err, result) => {
+                            if (err) _cb(err);
+                            else {
+                                _cb(null, ('Data updated'))
+                            }
+                        });
+                    }
+                });
+            }
         }
 
     });
 }
+
 
 //Ok
 function printTicket(token, cb) {
@@ -365,8 +382,8 @@ function printTicket(token, cb) {
                                             if (err) _cb(err);
                                             else {
                                                 orderArray.push({
-                                                    idOrder: _order._id.toHexString(), idPr: _product._id.toHexString(), qty: productID.qty, notes: productID.notes, name: _product.name,
-                                                    price: _product.price, description: _product.description
+                                                    idOrder: _order._id.toHexString(), idPr: _product._id.toHexString(), qty: productID.qty,
+                                                    notes: productID.notes, name: _product.name, price: _product.price, description: _product.description
                                                 });
                                                 //No me gusta esta solucion pero es funcional
                                                 flag--;
@@ -386,6 +403,31 @@ function printTicket(token, cb) {
 
                 }
             });
+        }
+    });
+}
+//Ok
+function closeOrder(orderID, cb) {
+    MongoClient.connect(url, function (err, client) {
+        if (err) cb(err)
+        else {
+            console.log('connected.');
+            function _cb(err, result) {
+                client.close();
+                cb(err, result);
+            }
+
+            var db = client.db('e-order');
+            var colCustomer = db.collection('customer');
+
+            colCustomer.findOneAndUpdate({ _id: new mongodb.ObjectId(orderID), method },
+                { "$set": { "paid": true } },
+                (err, order) => {
+                    if (err) _cb(err);
+                    else {
+                        _cb(null, ('Order closed'));
+                    }
+                });
         }
     });
 }
@@ -642,5 +684,36 @@ function updateSales(product, cb) {
                 }
             });
         }
+    });
+}
+
+//ok
+function openOrders(cb) {
+    MongoClient.connect(url, function (err, client) {
+        if (err) cb(err)
+
+        console.log('connected.');
+        function _cb(err, result) {
+            client.close();
+            cb(err, result);
+        }
+
+        var db = client.db('e-order');
+        var colCustomer = db.collection('customer');
+
+        var userOrder = [];
+
+        colCustomer.find({ paid: false }).toArray((err, _orders) => {
+            if (err) _cb(err);
+            else {
+                _orders.forEach((_order) => {
+                    userOrder.push({ 
+                        refClient: _order.refClient, 
+                        num_table: _order.num_table, 
+                        methodPay: _order.methodPay });
+                });
+                _cb(null, userOrder)
+            }
+        });
     });
 }
