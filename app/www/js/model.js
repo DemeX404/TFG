@@ -52,7 +52,7 @@ function addUser(user, cb) {
                                 _cb(null, {
                                     id: result.insertedId.toHexString(),
                                     name: user.name, surname: user.name, email: user.email, password: user.password,
-                                    avatar: user.avatar, phone: user.phone, type: type
+                                    avatar: user.avatar, phone: user.phone, type: user.type
                                 });
                             }
                         });
@@ -174,7 +174,7 @@ function updateUser(token, user, cb) {
     }
 }
 
-//Ok
+//Ok-used
 function listMenu(opts, cb) {
 
     MongoClient.connect(url, function (err, client) {
@@ -217,7 +217,7 @@ function listMenu(opts, cb) {
     });
 }
 
-//Ok
+//Ok-used
 function createOrder(token, content, cb) {
     if (!content.qty > 0) cb(new Error('Quantity should be more than 0'));
     else {
@@ -246,7 +246,7 @@ function createOrder(token, content, cb) {
                                 else {
                                     //Encontramos la orden abierta y añadimos el pedio
                                     if (_order.paid == false) {
-                                        content['id'] = _order.productOrder.length;
+                                        content['id'] = _order.productOrder.length*Math.floor(Math.random() * (20 - 1 + 1) - 1);
                                         col.updateOne({ _id: _order._id }, {
                                             $push: { "productOrder": { $each: [content] } }
                                         }, (err, result) => {
@@ -303,7 +303,7 @@ function createOrder(token, content, cb) {
     }
 }
 
-//Ok
+//Ok-used
 function editOrder(orderID, content, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err);
@@ -318,11 +318,11 @@ function editOrder(orderID, content, cb) {
             var col = db.collection('customer');
 
             if (content.methodPay) {
-                col.findOneAndUpdate({_id: new mongodb.ObjectId(orderID)},{
-                    $set: {methodPay: content.methodPay}
-                }, (err, _order) =>{
-                    if(err) _cb(err);
-                    else{
+                col.findOneAndUpdate({ _id: new mongodb.ObjectId(orderID) }, {
+                    $set: { methodPay: content.methodPay }
+                }, (err, _order) => {
+                    if (err) _cb(err);
+                    else {
                         _cb(null, 'Data updated');
                     }
                 });
@@ -350,8 +350,70 @@ function editOrder(orderID, content, cb) {
     });
 }
 
+//Ok
+function cancelOrder(orderID, cb) {
+    MongoClient.connect(url, function (err, client) {
+        if (err) cb(err);
+        else {
+            console.log('connected.');
+            function _cb(err, result) {
+                client.close();
+                cb(err, result);
+            }
+
+            var db = client.db('e-order');
+            var colCustomer = db.collection('customer');
+
+            colCustomer.findOne({ _id: new mongodb.ObjectId(orderID) }, (err, _order) => {
+                if (err) _cb(err);
+                else {
+                    colCustomer.findOneAndUpdate({ _id: new mongodb.ObjectId(_order.refClient) }, {
+                        $pull: { orders: orderID }
+                    }, (err, result) => {
+                        if (err) _cb(err);
+                        else {
+                            colCustomer.deleteOne({ _id: new mongodb.ObjectId(orderID) }, (err, _result) => {
+                                if (err) _cb(err);
+                                else {
+                                    _cb(null, 'Order deleted')
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+    });
+}
 
 //Ok
+function removeProductOrder(orderID, id, cb) {
+    MongoClient.connect(url, function (err, client) {
+        if (err) _cb(err);
+        else {
+            console.log('connected');
+            function _cb(err, result) {
+                client.close();
+                cb(err, result);
+            }
+
+            var db = client.db('e-order');
+            var colCustomer = db.collection('customer');
+
+            colCustomer.findOneAndUpdate({ _id: new mongodb.ObjectId(orderID) }, {
+                $pull: { 'productOrder': { id: id } }
+            }, (err, result) => {
+                if (err) _cb(err);
+                else {
+                    _cb(null, 'Product removed from the order')
+                }
+            });
+
+        }
+    });
+}
+//Ok-used
 function printTicket(token, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err)
@@ -382,7 +444,7 @@ function printTicket(token, cb) {
                                             if (err) _cb(err);
                                             else {
                                                 orderArray.push({
-                                                    idOrder: _order._id.toHexString(), idPr: _product._id.toHexString(), qty: productID.qty,
+                                                    id: productID.id, idOrder: _order._id.toHexString(), idPr: _product._id.toHexString(), qty: productID.qty,
                                                     notes: productID.notes, name: _product.name, price: _product.price, description: _product.description
                                                 });
                                                 //No me gusta esta solucion pero es funcional
@@ -406,31 +468,7 @@ function printTicket(token, cb) {
         }
     });
 }
-//Ok
-function closeOrder(orderID, cb) {
-    MongoClient.connect(url, function (err, client) {
-        if (err) cb(err)
-        else {
-            console.log('connected.');
-            function _cb(err, result) {
-                client.close();
-                cb(err, result);
-            }
 
-            var db = client.db('e-order');
-            var colCustomer = db.collection('customer');
-
-            colCustomer.findOneAndUpdate({ _id: new mongodb.ObjectId(orderID), method },
-                { "$set": { "paid": true } },
-                (err, order) => {
-                    if (err) _cb(err);
-                    else {
-                        _cb(null, ('Order closed'));
-                    }
-                });
-        }
-    });
-}
 
 /****   OWNER  ****/
 
@@ -660,8 +698,8 @@ function deleteProduct(product, cb) {
     });
 }
 
-//Ok, creo que hay que hacerlo para que reciba un array y fusionarlo con createOrder
-function updateSales(product, cb) {
+//Ok-use
+function updateSales(orderID, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err);
         else {
@@ -672,15 +710,29 @@ function updateSales(product, cb) {
             }
 
             var db = client.db('e-order');
-            var col = db.collection('product');
+            var colCustomer = db.collection('customer');
+            var colProduct = db.collection('product');
+            let bulkUpdates = [];
 
-            objectPr = new mongodb.ObjectId(product);
-            col.updateOne({ _id: objectPr }, {
-                $inc: { "sales": +1 }
-            }, (err, result) => {
+            colCustomer.findOne({ _id: new mongodb.ObjectId(orderID) }, (err, _order) => {
                 if (err) _cb(err);
                 else {
-                    _cb('Sales update')
+                    flag = _order.productOrder.length;
+                    _order.productOrder.forEach((product) => {
+                        bulkUpdates.push({
+                            "updateOne": {
+                                "filter": { _id: new mongodb.ObjectId(product.productId) },
+                                "update": { $inc: { "sales": +product.qty } }
+                            },
+                        });
+                    });
+
+                    colProduct.bulkWrite(bulkUpdates, (err, _result) => {
+                        if (err) _cb(err);
+                        else {
+                            _cb(null, 'Product sales updated')
+                        }
+                    });
                 }
             });
         }
@@ -707,13 +759,40 @@ function openOrders(cb) {
             if (err) _cb(err);
             else {
                 _orders.forEach((_order) => {
-                    userOrder.push({ 
-                        refClient: _order.refClient, 
-                        num_table: _order.num_table, 
-                        methodPay: _order.methodPay });
+                    userOrder.push({
+                        refClient: _order.refClient,
+                        num_table: _order.num_table,
+                        methodPay: _order.methodPay
+                    });
                 });
                 _cb(null, userOrder)
             }
         });
+    });
+}
+
+//Ok
+function closeOrder(orderID, cb) {
+    MongoClient.connect(url, function (err, client) {
+        if (err) cb(err)
+        else {
+            console.log('connected.');
+            function _cb(err, result) {
+                client.close();
+                cb(err, result);
+            }
+
+            var db = client.db('e-order');
+            var colCustomer = db.collection('customer');
+
+            colCustomer.findOneAndUpdate({ _id: new mongodb.ObjectId(orderID) },
+                { "$set": { "paid": true } },
+                (err, order) => {
+                    if (err) _cb(err);
+                    else {
+                        _cb(null, ('Order closed'));
+                    }
+                });
+        }
     });
 }

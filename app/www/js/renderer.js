@@ -1,5 +1,5 @@
 /*Se almacena la GUI de nuestra aplicacion web, desde aqui señalamos que paginas se van a cargar
- y cuales se ocultan */
+ y cuales se ocultan */ 
 
 let pages = {};
 //Ok
@@ -65,6 +65,7 @@ pages.home = {
     show: function (data) {
         console.log('home.show()');
         pages.home.refresh();
+        pages.home.button();
     },
     hide: function () { console.log('home.hide()'); },
     refresh: function () {
@@ -73,6 +74,8 @@ pages.home = {
         let htmlProductsHead = ``;
         let htmlProductsBody = ``;
         let htmlModal = ``;
+        let htmlBasket = ``;
+
         listMenu({}, (err, colProduct) => {
             if (err) alert('Error: ' + err.stack);
             else {
@@ -173,6 +176,24 @@ pages.home = {
             }
         });
     },
+    button: function () {
+        console.log('home.button()');
+        let htmlBasket = ``;
+        printTicket(token, (err, _order) => {
+            if (err) alert('Error: ' + err.stack);
+            else {
+                if (_order) {
+                    htmlBasket = `
+                    <div id="viewBasket"style="display: flex; justify-content: center; margin-top: 20px;">
+                        <a onclick="pages.home.order()" class="waves-effect waves-light btn"
+                            style="width: 50%; background-color:#3454D1; color:#EFEFEF">View Basket</a>
+                    </div>
+                    `;
+                    document.getElementById('basketButton').innerHTML = htmlBasket;
+                }
+            }
+        });
+    },
     increment: function (productID) {
         console.log('home.increment()');
         document.getElementById(`qty_${productID}`).stepUp();
@@ -186,25 +207,15 @@ pages.home = {
         console.log(`home.createOrder(${productID})`);
         let qty = +document.getElementById(`qty_${productID}`).value;
         let notes = document.getElementById(`textarea_${productID}`).value;
-        let htmlBasket = ``;
+
 
         createOrder(token, { productId: productID, qty: qty, notes: notes }, (err, _order) => {
             if (err) alert('Error: ' + err.stack);
             else {
-                let flag = document.getElementById('viewBasket');
-                if (!flag) {
-                    htmlBasket = `
-                    <div id="viewBasket"style="display: flex; justify-content: center; margin-top: 20px;">
-                        <a onclick="pages.home.order()" class="waves-effect waves-light btn"
-                            style="width: 50%; background-color:#3454D1; color:#EFEFEF">View Basket</a>
-                    </div>
-                    `;
-                    document.getElementById('basketButton').innerHTML = htmlBasket;
-                }
-
                 document.getElementById(`qty_${productID}`).value = '0';
                 document.getElementById(`textarea_${productID}`).value = '';
                 alert('Product added to the order');
+                pages.home.button();
             }
         });
     },
@@ -290,6 +301,7 @@ pages.order = {
                 let totalPrice = 0;
                 let htmlProduct = ``;
                 let htmlModal = ``;
+                let htmlButtonCancel = ``;
                 productList.forEach((product) => {
                     let finalPrice = product.qty * product.price;
                     totalPrice += finalPrice;
@@ -306,6 +318,9 @@ pages.order = {
                             </div>
                         </div>
                         <h5>${finalPrice} \u20AC </h5>
+                        <a onclick="pages.order.removePr('${product.idOrder}',${product.id})" href="#" style="">
+                            <i class="material-icons" style="color: #070707;">delete</i>
+                        </a>
                     </div>`;
 
                     htmlModal += `
@@ -356,11 +371,19 @@ pages.order = {
                             </div>
                         </div>
                     </div>`;
+
+                    htmlButtonCancel = `
+                        <div style="display: flex; justify-content: center; padding-bottom: 20px;" class="col s6">
+                            <a onclick="pages.order.cancel('${product.idOrder}')" class="waves-effect waves-light btn"
+                                style="background-color:#3454D1; color:#EFEFEF">Cancel</a>
+                        </div>
+                    `;
                 });
                 let htmlTotalPrice = `<h5> ${totalPrice} \u20AC</h5>`;
                 document.getElementById('product').innerHTML = htmlProduct;
                 document.getElementById('finalPrice').innerHTML = htmlTotalPrice;
                 document.getElementById('modals').innerHTML = htmlModal;
+                document.getElementById('buttonCancel').innerHTML = htmlButtonCancel;
 
                 // Init modal
                 var nodes = document.querySelectorAll('.modal');
@@ -384,6 +407,28 @@ pages.order = {
             }
         });
 
+    },
+    cancel: function (orderID) {
+        console.log('order.cancel()');
+
+        cancelOrder(orderID, (err, _result) => {
+            if (err) alert('Error: ' + err.stack);
+            else {
+                alert(_result);
+                navigateTo('home');
+            }
+        });
+    },
+    removePr: function (orderID, id) {
+        console.log('order.removePr()');
+
+        removeProductOrder(orderID, id, (err, _result) => {
+            if (err) alert('Error: ' + err.stack);
+            else {
+                alert(_result);
+                pages.order.refresh();
+            }
+        });
     },
     ticket: function () {
         console.log('order.ticket()');
@@ -444,7 +489,8 @@ pages.ticket = {
         editOrder(orderID, content, (err, result) => {
             if (err) alert('Error: ' + err.stack);
             else {
-                alert('Metho payment ' + method);
+                alert('Method payment ' + method);
+                navigateTo('home');
             }
         });
 
@@ -618,7 +664,7 @@ pages.kitchen = {
 
         if (checkbox.checked) {
             //Esto por ahora no funciona wip
-           // pages.diningRoom.kitchen(true);
+            // pages.diningRoom.kitchen(true);
         };
     }
 };
@@ -636,21 +682,24 @@ pages.diningRoom = {
 
         openOrders((err, _openOrders) => {
             if (err) alert('Error: ' + err.stack);
+            else if (_openOrders.length == 0) document.getElementById('body').innerHTML = htmlBody;
             else {
                 _openOrders.forEach((_order) => {
                     printTicket(_order.refClient, (err, order) => {
                         if (err) alert('Error: ' + err.stack);
                         else {
                             let finalPrice = 0;
+                            let orderId = '';
 
                             order.forEach((product) => {
                                 finalPrice += product.qty * product.price
+                                orderId = product.idOrder
                             });
                             if (_order.methodPay != 'none') {
                                 htmlBody += `
                                 <div class="row" style="margin-bottom:5px; border-top: dotted;">
                                     <div class="col s3">
-                                        <a onclick="pages.ticket.home()" class="waves-teal btn-flat">
+                                        <a onclick="pages.diningRoom.closeOrder('${orderId}')" class="waves-teal btn-flat">
                                             <i class="material-icons">delete</i>
                                         </a>
                                         <span>${_order.num_table}</span>
@@ -672,6 +721,22 @@ pages.diningRoom = {
             }
         });
     },
+    closeOrder: function (orderID) {
+        console.log('diningRoom.closeOrder()');
+
+        closeOrder(orderID, (err, result) => {
+            if (err) alert('Error: ' + err.stack);
+            else {
+                updateSales(orderID, (err, _result) => {
+                    if (err) alert('Error: ' + err.stack);
+                    else {
+                        alert('Order closed');
+                        pages.diningRoom.refresh();
+                    }
+                });
+            }
+        });
+    },
     login: function () {
         console.log('diningRoom.login()');
         navigateTo('login');
@@ -689,7 +754,7 @@ pages.diningRoom = {
                 </div>
             </a>
         `;
-        }else{
+        } else {
             htmlKitchen = ``;
         }
 
@@ -744,7 +809,6 @@ pages.createPrTy = {
         addType({ type: type }, (err, newType) => {
             if (err) alert('Error: ' + err.stack);
             else {
-                console.log(newType);
                 pages.createPrTy.refresh();
             }
         });
