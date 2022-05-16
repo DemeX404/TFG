@@ -42,7 +42,7 @@
         <div class="col s12">
             <h2>Product</h2>
         </div>
-        <form class="multipart/form-data">
+        <form id="dataPr" class="multipart/form-data">
             <div class="row">
                 <div class="input-field col s6">
                     <input id="name" type="text">
@@ -61,13 +61,18 @@
                     <label for="description">Description</label>
                 </div>
             </div>
-            <!-- Esto es para hacer la prueba para subir imagenes
-            Aun queda por probar si puedo hacerlo con materialize -->
             <div class="row">
-                <div class="form-group">
-                    <label for="image" class="text-white"> Upload Image</label>
-                    <input type="file" name="image" id="image" class="form-control-file text-white"> 
-                </div>
+                <form class="mt-4">
+                    <div class="file-field input-field form-group">
+                        <div class="btn">
+                            <span>Upload Image</span>
+                            <input id="image" type="file" name="image" id="input-files" class="form-control-file border">
+                        </div>
+                        <div class="file-path-wrapper">
+                            <input class="file-path validate" type="text">
+                        </div>
+                    </div>
+                </form>
             </div>
 
             <div class="row">

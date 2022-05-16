@@ -1,25 +1,8 @@
 const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
+const ObjectID = mongodb.ObjectId;
 const url = 'mongodb://localhost:27017';
 
-/*Esta parte habra que probarla cuando tenga el servicio restful
-const multer = require('multer');
-
-const storage = multer.diskStorage({
-    destination: function(request, file, cb){
-        cb(null, './www/images');
-    },
-    filename: function(request, file, cb){
-        cb(null, Date.now() + file.originalname);
-    }
-});
-
-const upload = mult({
-    storage: storage,
-    limite:{
-        fieldSize: 1024*1024*3
-    }
-});*/
 
 /****   CUSTOMERS  ****/
 //Ok
@@ -41,6 +24,7 @@ function addUser(user, cb) {
                 let db = client.db('e-order');
                 let col = db.collection('customer');
 
+                //El sustituto de count ser --> countDocuments
                 col.find().count((err, length) => {
                     if (err) _cb(err);
                     else if (length == 0) {
@@ -57,6 +41,7 @@ function addUser(user, cb) {
                             }
                         });
                     } else {
+                        console.log(user);
                         col.findOne({ email: user.email },
                             (err, _user) => {
                                 if (err) _cb(err);
@@ -68,7 +53,7 @@ function addUser(user, cb) {
                                             _cb(null, {
                                                 id: result.insertedId.toHexString(),
                                                 name: user.name, surname: user.name, email: user.email, password: user.password,
-                                                avatar: user.avatar, phone: user.phone, type: user.type
+                                                avatar: user.avatar, phone: user.phone, type: user.type, image: user.image
                                             });
                                         }
                                     });
@@ -101,8 +86,8 @@ function login(name, password, cb) {
                 else if (!_user) _cb(new Error('User not found'));
                 else {
                     _cb(null, _user._id.toHexString(), {
-                        _id: _user._id.toHexString(), name: _user.name, surname: _user.surname,
-                        email: _user.email, phone: _user.phone, type: _user.type, avatar: _user.avatar
+                        _id: _user._id.toHexString(), name: _user.name, surname: _user.surname, password: _user.password,
+                        email: _user.email, phone: _user.phone, type: _user.type, avatar: _user.avatar, image: _user.image
                     });
                 }
             });
@@ -136,33 +121,42 @@ function updateUser(token, user, cb) {
                     if (err) _cb(err);
                     else {
                         if (result.type == 'employee') {
-                            col.updateOne(query, {
+                            col.findOneAndUpdate(query, {
                                 $set: {
                                     "name": user.name,
                                     "surname": user.surname,
                                     "dni": user.dni,
                                     "password": user.password,
-                                    "phone": user.phone
+                                    "phone": user.phone,
+                                    "image": user.image
                                 }
                             }, (err, _user) => {
                                 if (err) _cb(err);
                                 else {
-                                    console.log(new Error('Update Finished'));
+                                    _cb(null, {
+                                        _id: _user.value._id.toHexString(), name: user.name, surname: user.surname, password: user.password,
+                                        dni: user.dni, phone: user.phone, type: _user.value.type, image: user.image
+                                    });
                                 }
                             });
                         } else {
-                            col.updateOne(query, {
+                            col.findOneAndUpdate(query, {
                                 $set: {
                                     "name": user.name,
                                     "surname": user.surname,
                                     "email": user.email,
                                     "password": user.password,
-                                    "phone": user.phone
+                                    "phone": user.phone,
+                                    "image": user.image
                                 }
                             }, (err, _user) => {
                                 if (err) _cb(err);
                                 else {
-                                    console.log(new Error('Update Finished'));
+                                    console.log(_user);
+                                    _cb(null, {
+                                        _id: _user.value._id.toHexString(), name: user.name, surname: user.surname, password: user.password,
+                                        email: user.email, phone: user.phone, type: _user.value.type, image: user.image
+                                    });
                                 }
                             });
                         }
@@ -175,7 +169,7 @@ function updateUser(token, user, cb) {
 }
 
 //Ok-used
-function listMenu(opts, cb) {
+function listMenu(token, opts, cb) {
 
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err)
@@ -203,10 +197,17 @@ function listMenu(opts, cb) {
                         if (err) _cb(err);
                         else {
                             products.forEach((infoPr) => {
-                                productsArray.push({
-                                    _id: infoPr._id.toHexString(), name: infoPr.name, price: infoPr.price,
-                                    typePr: infoPr.typePr, sale: infoPr.sales, description: infoPr.description
-                                });
+                                if (infoPr.image != 'none') {
+                                    productsArray.push({
+                                        _id: infoPr._id.toHexString(), name: infoPr.name, price: infoPr.price,
+                                        typePr: infoPr.typePr, sale: infoPr.sales, description: infoPr.description, image: infoPr.image
+                                    });
+                                } else {
+                                    productsArray.push({
+                                        _id: infoPr._id.toHexString(), name: infoPr.name, price: infoPr.price,
+                                        typePr: infoPr.typePr, sale: infoPr.sales, description: infoPr.description, image: 'images/1entrante.jpg'
+                                    });
+                                }
                             });
                             _cb(null, productsArray);
                         }
@@ -246,7 +247,7 @@ function createOrder(token, content, cb) {
                                 else {
                                     //Encontramos la orden abierta y añadimos el pedio
                                     if (_order.paid == false) {
-                                        content['id'] = _order.productOrder.length*Math.floor(Math.random() * (20 - 1 + 1) - 1);
+                                        content['id'] = _order.productOrder.length * Math.floor(Math.random() * (20 - 1 + 1) - 1);
                                         col.updateOne({ _id: _order._id }, {
                                             $push: { "productOrder": { $each: [content] } }
                                         }, (err, result) => {
@@ -304,7 +305,8 @@ function createOrder(token, content, cb) {
 }
 
 //Ok-used
-function editOrder(orderID, content, cb) {
+function editOrder(token, orderID, content, cb) {
+
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err);
         else {
@@ -316,20 +318,13 @@ function editOrder(orderID, content, cb) {
 
             var db = client.db('e-order');
             var col = db.collection('customer');
+            console.log(content);
 
-            if (content.methodPay) {
-                col.findOneAndUpdate({ _id: new mongodb.ObjectId(orderID) }, {
-                    $set: { methodPay: content.methodPay }
-                }, (err, _order) => {
-                    if (err) _cb(err);
-                    else {
-                        _cb(null, 'Data updated');
-                    }
-                });
-            } else {
+            if (!content.methodPay) {
                 col.findOne({ _id: new mongodb.ObjectId(orderID) }, (err, _order) => {
                     if (err) _cb(err);
                     else {
+                        console.log(_order);
                         col.updateOne({ _id: new mongodb.ObjectId(orderID), "productOrder.productId": content.productId }, {
                             $set: {
                                 "productOrder.$.productId": content.productId,
@@ -344,6 +339,15 @@ function editOrder(orderID, content, cb) {
                         });
                     }
                 });
+            } else {
+                col.findOneAndUpdate({ _id: new mongodb.ObjectId(orderID) }, {
+                    $set: { methodPay: content.methodPay }
+                }, (err, _order) => {
+                    if (err) _cb(err);
+                    else {
+                        _cb(null, 'Data updated');
+                    }
+                });
             }
         }
 
@@ -351,7 +355,7 @@ function editOrder(orderID, content, cb) {
 }
 
 //Ok
-function cancelOrder(orderID, cb) {
+function cancelOrder(token, orderID, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err);
         else {
@@ -361,6 +365,7 @@ function cancelOrder(orderID, cb) {
                 cb(err, result);
             }
 
+            console.log(orderID);
             var db = client.db('e-order');
             var colCustomer = db.collection('customer');
 
@@ -387,8 +392,8 @@ function cancelOrder(orderID, cb) {
     });
 }
 
-//Ok
-function removeProductOrder(orderID, id, cb) {
+//Porque no funciona en el servidor
+function removeProductOrder(token, orderID, productID, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) _cb(err);
         else {
@@ -401,8 +406,10 @@ function removeProductOrder(orderID, id, cb) {
             var db = client.db('e-order');
             var colCustomer = db.collection('customer');
 
-            colCustomer.findOneAndUpdate({ _id: new mongodb.ObjectId(orderID) }, {
-                $pull: { 'productOrder': { id: id } }
+            productID = parseInt(productID);
+
+            colCustomer.updateOne({ _id: new mongodb.ObjectId(orderID) }, {
+                $pull: { productOrder: { id: productID } }
             }, (err, result) => {
                 if (err) _cb(err);
                 else {
@@ -414,7 +421,7 @@ function removeProductOrder(orderID, id, cb) {
     });
 }
 //Ok-used
-function printTicket(token, cb) {
+function printTicket(token, userID, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err)
         else {
@@ -430,7 +437,7 @@ function printTicket(token, cb) {
 
             var orderArray = [];
 
-            colCustomer.findOne({ _id: new mongodb.ObjectId(token) }, (err, _user) => {
+            colCustomer.findOne({ _id: new mongodb.ObjectId(userID) }, (err, _user) => {
                 if (err) _cb(err);
                 else {
                     _user.orders.forEach((ordersID) => {
@@ -443,10 +450,20 @@ function printTicket(token, cb) {
                                         colProduct.findOne({ _id: new mongodb.ObjectId(productID.productId) }, (err, _product) => {
                                             if (err) _cb(err);
                                             else {
-                                                orderArray.push({
-                                                    id: productID.id, idOrder: _order._id.toHexString(), idPr: _product._id.toHexString(), qty: productID.qty,
-                                                    notes: productID.notes, name: _product.name, price: _product.price, description: _product.description
-                                                });
+
+                                                if (_product.image != 'none') {
+                                                    orderArray.push({
+                                                        id: productID.id, idOrder: _order._id.toHexString(), idPr: _product._id.toHexString(), qty: productID.qty,
+                                                        notes: productID.notes, name: _product.name, price: _product.price, description: _product.description, image: _product.image
+                                                    });
+                                                } else {
+                                                    orderArray.push({
+                                                        id: productID.id, idOrder: _order._id.toHexString(), idPr: _product._id.toHexString(), qty: productID.qty,
+                                                        notes: productID.notes, name: _product.name, price: _product.price, description: _product.description, image: 'images/1entrante.jpg'
+                                                    });
+                                                }
+
+
                                                 //No me gusta esta solucion pero es funcional
                                                 flag--;
                                                 if (flag == 0) {
@@ -462,7 +479,6 @@ function printTicket(token, cb) {
                             }
                         });
                     });
-
                 }
             });
         }
@@ -473,7 +489,7 @@ function printTicket(token, cb) {
 /****   OWNER  ****/
 
 //Ok
-function addType(type, cb) {
+function addType(token, type, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err);
         else {
@@ -507,7 +523,7 @@ function addType(type, cb) {
 
 }
 //Ok
-function updateType(typeID, newType, cb) {
+function updateType(token, typeID, newType, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err);
         else {
@@ -528,7 +544,7 @@ function updateType(typeID, newType, cb) {
             }, (err, _user) => {
                 if (err) _cb(err);
                 else {
-                    console.log('Update Finished');
+                    _cb(null, 'Update Finished');
                 }
             });
 
@@ -538,7 +554,7 @@ function updateType(typeID, newType, cb) {
 }
 
 //Ok
-function deleteType(typeId, cb) {
+function deleteType(token, typeId, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err);
         else {
@@ -563,7 +579,7 @@ function deleteType(typeId, cb) {
                         col.deleteOne({ _id: objectPr }, (err, _result) => {
                             if (err) _cb(err);
                             else {
-                                _cb('Type deleted');
+                                _cb(null, ('Type deleted'));
                             }
                         });
                     }
@@ -575,7 +591,7 @@ function deleteType(typeId, cb) {
 }
 
 //Ok
-function addProduct(newProduct, cb) {
+function addProduct(token, newProduct, cb) {
     console.log('connected')
     if (!newProduct.name) cb(new Error('Property name missing'));
     else if (!newProduct.price) cb(new Error('Property price missing'));
@@ -590,6 +606,7 @@ function addProduct(newProduct, cb) {
                     client.close();
                     cb(err, res);
                 }
+
                 let db = client.db('e-order');
                 let product = db.collection('product');
                 product.findOne({ name: newProduct.name },
@@ -604,7 +621,10 @@ function addProduct(newProduct, cb) {
                                     product.updateOne({ type: newProduct.typePr }, { $push: { lstPr: result.insertedId.toHexString() } }, (err, update) => {
                                         if (err) _cb(err);
                                         else {
-                                            _cb(null, { id: result.insertedId.toHexString(), name: newProduct.name, lstPr: newProduct.lstPr, type: newProduct.typePr });
+                                            _cb(null, {
+                                                id: result.insertedId.toHexString(), name: newProduct.name, lstPr: newProduct.lstPr,
+                                                type: newProduct.typePr
+                                            });
                                         }
                                     });
                                 }
@@ -616,12 +636,14 @@ function addProduct(newProduct, cb) {
     }
 }
 
+
 //Ok
-function updateProduct(productID, product, cb) {
+function updateProduct(token, productID, product, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err);
         else {
             console.log('connected.');
+            console.log('producto act');
             function _cb(err, result, result2) {
                 client.close();
                 cb(err, result, result2);
@@ -633,11 +655,13 @@ function updateProduct(productID, product, cb) {
             let query = { _id: new mongodb.ObjectId(productID) };
             objectPr = new mongodb.ObjectId(productID);
 
+            console.log('test');
             col.updateOne({ lstPr: productID }, {
                 $pull: { "lstPr": productID }
             }, (err, _oldPr) => {
                 if (err) _cb(err);
                 else {
+                    console.log(product)
                     col.updateOne({ type: product.typePr }, {
                         $push: { lstPr: productID }
                     }, (err, fake) => {
@@ -652,7 +676,7 @@ function updateProduct(productID, product, cb) {
                             }, (err, _newProduct) => {
                                 if (err) _cb(err);
                                 else {
-                                    _cb(null, { _newProduct })
+                                    _cb(null, ('Product updated'))
                                 }
                             });
                         }
@@ -665,7 +689,7 @@ function updateProduct(productID, product, cb) {
 }
 
 //Ok Suelta on error:undefined pero funciona bien xD
-function deleteProduct(product, cb) {
+function deleteProduct(token, productID, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err);
         else {
@@ -678,16 +702,17 @@ function deleteProduct(product, cb) {
             var db = client.db('e-order');
             var col = db.collection('product');
 
-            objectPr = new mongodb.ObjectId(productId);
-            col.deleteOne({ _id: objectPr }, (err, result) => {
+            objectPr = new mongodb.ObjectId(productID);
+            col.findOneAndDelete({ _id: objectPr }, (err, result) => {
                 if (err) _cb(err);
                 else {
-                    col.updateOne({ typePr: product.type }, {
-                        $pull: { "lstPr": product }
+                    console.log(result.value.typePr);
+                    col.updateOne({ type: result.value.typePr }, {
+                        $pull: { "lstPr": productID }
                     }, (err, _result) => {
                         if (err) _cb(err);
                         else {
-                            _cb('Product deleted');
+                            _cb(null, 'Product deleted');
                         }
                     });
                 }
@@ -699,7 +724,7 @@ function deleteProduct(product, cb) {
 }
 
 //Ok-use
-function updateSales(orderID, cb) {
+function updateSales(token, orderID, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err);
         else {
@@ -740,7 +765,7 @@ function updateSales(orderID, cb) {
 }
 
 //ok
-function openOrders(cb) {
+function openOrders(token, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err)
 
@@ -772,7 +797,7 @@ function openOrders(cb) {
 }
 
 //Ok
-function closeOrder(orderID, cb) {
+function closeOrder(token, orderID, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err)
         else {
@@ -795,4 +820,25 @@ function closeOrder(orderID, cb) {
                 });
         }
     });
+}
+
+module.exports = {
+    addUser,
+    login,
+    updateUser,
+    listMenu,
+    createOrder,
+    editOrder,
+    cancelOrder,
+    removeProductOrder,
+    openOrders,
+    printTicket,
+    addType,
+    updateType,
+    deleteType,
+    addProduct,
+    updateProduct,
+    deleteProduct,
+    updateSales,
+    closeOrder
 }

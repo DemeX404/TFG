@@ -1,5 +1,7 @@
+const { dialog } = require('electron').remote
+
 /*Se almacena la GUI de nuestra aplicacion web, desde aqui señalamos que paginas se van a cargar
- y cuales se ocultan */ 
+ y cuales se ocultan */
 
 let pages = {};
 //Ok
@@ -16,7 +18,10 @@ pages.login = {
         let name = document.getElementById('name').value;
         let password = document.getElementById('password').value;
         login(name, password, (err, token, user) => {
-            if (err) alert('Error: ' + err.stack);
+            if (err) {
+                console.log('Error: ' + err.stack);
+                dialog.showErrorBox("Error:", 'Error al hacer el login');
+            }
             else {
                 //Guardamos el token
                 window.token = token;
@@ -47,17 +52,38 @@ pages.register = {
         let email = document.getElementById('email').value;
         let password = document.getElementById('password').value;
         let phone = document.getElementById('phone').value;
-        let type = "customer";
-        let orders = [];
-        addUser({
-            name: name, surname: surname, email: email, password: password,
-            phone: phone, type: type, orders: orders
-        }, (err, user) => {
-            if (err) alert('Error: ' + err.stack);
+        var image = document.getElementById('image').files[0];
+
+        let formData = new FormData();
+        formData.append('name', name);
+        formData.append('surname', surname);
+        formData.append('email', email);
+        formData.append('password', password);
+        formData.append('phone', phone);
+        formData.append('type', "customer");
+        formData.append('image', image);
+
+        addUser(formData, (err, user) => {
+            if (err) {
+                console.log('Error: ' + err.stack);
+                dialog.showErrorBox("Error:", 'Error al actualizar el usuario');
+            }
             else {
                 navigateTo('login')
             }
         });
+    },
+    showPreview: function (event) {
+        console.log('register.showPreview()');
+        if (event.target.files.length > 0) {
+            console.log('yee que entro');
+            var src = URL.createObjectURL(event.target.files[0]);
+            var preview = document.getElementById("preview");
+            preview.src = src;
+            preview.style.display = "block";
+            var hide = document.getElementById("hide");
+            hide.style.display = "none";
+        }
     }
 };
 //Ok
@@ -65,7 +91,6 @@ pages.home = {
     show: function (data) {
         console.log('home.show()');
         pages.home.refresh();
-        pages.home.button();
     },
     hide: function () { console.log('home.hide()'); },
     refresh: function () {
@@ -74,10 +99,24 @@ pages.home = {
         let htmlProductsHead = ``;
         let htmlProductsBody = ``;
         let htmlModal = ``;
-        let htmlBasket = ``;
+        let htmlUserImage = ``;
 
-        listMenu({}, (err, colProduct) => {
-            if (err) alert('Error: ' + err.stack);
+        if (user.image != 'none') {
+            htmlUserImage = `
+            <img src="${user.image}" style="width: 50%;">
+            `;
+        } else {
+            htmlUserImage = `
+                <i class="large material-icons prefix">account_circle</i>
+            `;
+        }
+        document.getElementById('image').innerHTML = htmlUserImage;
+
+        listMenu(token, {}, (err, colProduct) => {
+            if (err) {
+                console.log('Error: ' + err.stack);
+                dialog.showErrorBox("Error:", 'Error al hacer listar los productos');
+            }
             else {
                 let type = [];
                 colProduct.forEach((product) => {
@@ -107,8 +146,8 @@ pages.home = {
                                     <h5>${product.name}</h5>
                                     <span>${product.description} </span>
                                 </div>
-                                <img class="responsive-img" style="width: 250px; align-self: flex-end;"
-                                src="images/1entrante.jpg">
+                                <img class="responsive-img" style="width: 25%; align-self: flex-end;"
+                                src="${product.image}">
                             </div>
                         </a>`;
                         htmlModal += `
@@ -117,7 +156,7 @@ pages.home = {
                             <div class="col s12 m6">
                                 <div class="card">
                                     <div class="card-image">
-                                        <img src="images/1entrante.jpg" style="width: 75%; margin-left: auto; margin-right: auto;">
+                                        <img src="${product.image}" style="width: 50%; margin-left: auto; margin-right: auto;">
                                     </div>
                                     <div class="divider"></div>
                                     <div class="card-content">
@@ -176,24 +215,6 @@ pages.home = {
             }
         });
     },
-    button: function () {
-        console.log('home.button()');
-        let htmlBasket = ``;
-        printTicket(token, (err, _order) => {
-            if (err) alert('Error: ' + err.stack);
-            else {
-                if (_order) {
-                    htmlBasket = `
-                    <div id="viewBasket"style="display: flex; justify-content: center; margin-top: 20px;">
-                        <a onclick="pages.home.order()" class="waves-effect waves-light btn"
-                            style="width: 50%; background-color:#3454D1; color:#EFEFEF">View Basket</a>
-                    </div>
-                    `;
-                    document.getElementById('basketButton').innerHTML = htmlBasket;
-                }
-            }
-        });
-    },
     increment: function (productID) {
         console.log('home.increment()');
         document.getElementById(`qty_${productID}`).stepUp();
@@ -210,12 +231,15 @@ pages.home = {
 
 
         createOrder(token, { productId: productID, qty: qty, notes: notes }, (err, _order) => {
-            if (err) alert('Error: ' + err.stack);
+            if (err) {
+                console.log('Error: ' + err.stack);
+                dialog.showErrorBox("Error:", 'Error al hacer el login');
+            }
             else {
+                //Esto lo bloquea??
                 document.getElementById(`qty_${productID}`).value = '0';
                 document.getElementById(`textarea_${productID}`).value = '';
                 alert('Product added to the order');
-                pages.home.button();
             }
         });
     },
@@ -245,12 +269,33 @@ pages.profile = {
         var nodes = document.querySelectorAll('.sidenav');
         var sidenavs = M.Sidenav.init(nodes, { edge: 'left' });
 
-        //Se rellenan los campos con la informaciçon del usuario
+        //Se rellenan los campos con la informacion del usuario
         document.getElementById('name').value = user.name;
         document.getElementById('surname').value = user.surname;
         document.getElementById('email').value = user.email;
         document.getElementById('phone').value = user.phone;
         document.getElementById('password').value = user.password;
+        document.getElementById('profile').files[0] = user.image;
+
+        let htmlUserImage = ``;
+        let htmlUserImageSN = ``;
+        if (user.image != 'none') {
+            htmlUserImage = `
+                <img id="preview" src="${user.image}" style="width: 50%;">
+            `;
+            htmlUserImageSN = `
+                <img id="previewSN" src="${user.image}" style="width: 50%;">
+            `;
+        } else {
+            htmlUserImage = `
+                <i id="hide" class="large material-icons prefix">account_circle</i>
+            `;
+            htmlUserImageSN = `
+                <i id="hideSN" class="large material-icons prefix">account_circle</i>
+            `;
+        }
+        document.getElementById('image').innerHTML = htmlUserImage;
+        document.getElementById('imageSN').innerHTML = htmlUserImageSN;
     },
     hide: function () { console.log('profile.hide()'); },
     home: function () {
@@ -264,17 +309,39 @@ pages.profile = {
         let email = document.getElementById('email').value
         let phone = document.getElementById('phone').value
         let password = document.getElementById('password').value
+        var image = document.getElementById('profile').files[0];
 
-        updateUser(token, {
-            name: name, surname: surname, email: email,
-            phone: phone, password: password
-        },
+        let formData = new FormData();
+        formData.append('name', name);
+        formData.append('surname', surname);
+        formData.append('email', email);
+        formData.append('phone', phone);
+        formData.append('password', password);
+        formData.append('image', image);
+
+        updateUser(token, formData,
             (err, _user) => {
-                if (err) alert('Error: ' + err.stack);
+                if (err) {
+                    console.log('Error: ' + err.stack);
+                    dialog.showErrorBox("Error:", 'Error al actualizar los datos');
+                }
                 else {
                     alert('Usuario actualizado con exito');
+                    window.user = _user
                 }
             });
+    },
+    showPreview: function (event) {
+        console.log('register.showPreview()');
+        if (event.target.files.length > 0) {
+            var src = URL.createObjectURL(event.target.files[0]);
+            var preview = document.getElementById("preview");
+            preview.src = src;
+            preview.style.display = "block";
+            var hide = document.getElementById("hide");
+            hide.style.display = "none";
+
+        }
     },
     login: function () {
         console.log('profile.login()');
@@ -295,8 +362,11 @@ pages.order = {
     refresh: function () {
         console.log('order.refresh()');
 
-        printTicket(token, (err, productList) => {
-            if (err) alert('Error: ' + err.stack);
+        printTicket(token, token, (err, productList) => {
+            if (err) {
+                console.log('Error: ' + err.stack);
+                dialog.showErrorBox("Error:", 'Error al mostrar los productos');
+            }
             else {
                 let totalPrice = 0;
                 let htmlProduct = ``;
@@ -329,7 +399,7 @@ pages.order = {
                             <div class="col s12 m6">
                                 <div class="card">
                                     <div class="card-image">
-                                        <img src="images/1entrante.jpg" style="width: 75%; margin-left: auto; margin-right: auto;">
+                                        <img src="${product.image}" style="width: 75%; margin-left: auto; margin-right: auto;">
                                     </div>
                                     <div class="divider"></div>
                                     <div class="card-content">
@@ -399,8 +469,11 @@ pages.order = {
         let note = document.getElementById(`textarea_${idPr}`).value;
 
         console.log(orderID);
-        editOrder(orderID, { productId: idPr, qty: qty, notes: note }, (err, result) => {
-            if (err) alert('Error: ' + err.stack);
+        editOrder(token, orderID, { productId: idPr, qty: qty, notes: note }, (err, result) => {
+            if (err) {
+                console.log('Error: ' + err.stack);
+                dialog.showErrorBox("Error:", 'Error al editar la orden');
+            }
             else {
                 pages.order.refresh();
                 alert('Order edited');
@@ -411,8 +484,11 @@ pages.order = {
     cancel: function (orderID) {
         console.log('order.cancel()');
 
-        cancelOrder(orderID, (err, _result) => {
-            if (err) alert('Error: ' + err.stack);
+        cancelOrder(token, orderID, (err, _result) => {
+            if (err) {
+                console.log('Error: ' + err.stack);
+                dialog.showErrorBox("Error:", 'Error al cancelar la orden');
+            }
             else {
                 alert(_result);
                 navigateTo('home');
@@ -422,8 +498,11 @@ pages.order = {
     removePr: function (orderID, id) {
         console.log('order.removePr()');
 
-        removeProductOrder(orderID, id, (err, _result) => {
-            if (err) alert('Error: ' + err.stack);
+        removeProductOrder(token, orderID, id, (err, _result) => {
+            if (err) {
+                console.log('Error: ' + err.stack);
+                dialog.showErrorBox("Error:", 'Error al eliminar el producto');
+            }
             else {
                 alert(_result);
                 pages.order.refresh();
@@ -444,8 +523,11 @@ pages.ticket = {
     show: function (data) {
         console.log('ticket.show()');
 
-        printTicket(token, (err, productList) => {
-            if (err) alert('Error: ' + err.stack);
+        printTicket(token, token, (err, productList) => {
+            if (err) {
+                console.log('Error: ' + err.stack);
+                dialog.showErrorBox("Error:", 'Error al mostrar los productos');
+            }
             else {
                 let totalPrice = 0;
                 let htmlTicket = ``;
@@ -486,11 +568,15 @@ pages.ticket = {
         console.log('ticket.paymentMethod()');
 
         let content = { methodPay: method };
-        editOrder(orderID, content, (err, result) => {
-            if (err) alert('Error: ' + err.stack);
+        editOrder(token, orderID, content, (err, result) => {
+            if (err) {
+                console.log('Error: ' + err.stack);
+                dialog.showErrorBox("Error:", 'Error al enviar la orden');
+            }
             else {
                 alert('Method payment ' + method);
                 navigateTo('home');
+                pages.diningRoom.refresh();
             }
         });
 
@@ -510,8 +596,11 @@ pages.owner = {
     refresh: function () {
         console.log('owner.refresh()');
         let html = ``;
-        listMenu({}, (err, colProduct) => {
-            if (err) alert('Error: ' + err.stack);
+        listMenu(token, {}, (err, colProduct) => {
+            if (err) {
+                console.log('Error: ' + err.stack);
+                dialog.showErrorBox("Error:", 'Error al mostrar los productos');
+            }
             else {
                 colProduct.forEach((product) => {
                     if (product['typePr'] != null) {
@@ -559,7 +648,10 @@ pages.creatEmpl = {
         let type = "employee";
 
         addUser({ name: name, surname: surname, dni: dni, password: password, phone: phone, type: type }, (err, employe) => {
-            if (err) alert('Error: ' + err.stack);
+            if (err) {
+                console.log('Error: ' + err.stack);
+                dialog.showErrorBox("Error:", 'Error al crear empleado');
+            }
             else {
                 alert('Employee create succefuly');
             }
@@ -593,12 +685,18 @@ pages.kitchen = {
         let htmlBody = ``;
         let htmlModal = ``;
         let count = 0;
-        openOrders((err, _openOrders) => {
-            if (err) alert('Error: ' + err.stack);
+        openOrders(token, (err, _openOrders) => {
+            if (err) {
+                console.log('Error: ' + err.stack);
+                dialog.showErrorBox("Error:", 'Error al mostrar las ordenes');
+            }
             else {
                 _openOrders.forEach((_user) => {
-                    printTicket(_user.refClient, (err, order) => {
-                        if (err) alert('Error: ' + err.stack);
+                    printTicket(token, _user.refClient, (err, order) => {
+                        if (err) {
+                            console.log('Error: ' + err.stack);
+                            dialog.showErrorBox("Error:", 'Error al mostrar los productos');
+                        }
                         else {
                             htmlBody += `
                             <div style="display: flex;justify-content: space-between;margin-left: 5%;margin-right: 5%;">
@@ -680,13 +778,19 @@ pages.diningRoom = {
 
         let htmlBody = ``;
 
-        openOrders((err, _openOrders) => {
-            if (err) alert('Error: ' + err.stack);
+        openOrders(token, (err, _openOrders) => {
+            if (err) {
+                console.log('Error: ' + err.stack);
+                dialog.showErrorBox("Error:", 'Error al mostrar las ordenes');
+            }
             else if (_openOrders.length == 0) document.getElementById('body').innerHTML = htmlBody;
             else {
                 _openOrders.forEach((_order) => {
-                    printTicket(_order.refClient, (err, order) => {
-                        if (err) alert('Error: ' + err.stack);
+                    printTicket(token, _order.refClient, (err, order) => {
+                        if (err) {
+                            console.log('Error: ' + err.stack);
+                            dialog.showErrorBox("Error:", 'Error al mostrar los productos');
+                        }
                         else {
                             let finalPrice = 0;
                             let orderId = '';
@@ -724,11 +828,18 @@ pages.diningRoom = {
     closeOrder: function (orderID) {
         console.log('diningRoom.closeOrder()');
 
-        closeOrder(orderID, (err, result) => {
-            if (err) alert('Error: ' + err.stack);
+        closeOrder(token, orderID, (err, result) => {
+            if (err) {
+                console.log('Error: ' + err.stack);
+                dialog.showErrorBox("Error:", 'Error al cerrar las ordenes');
+            }
             else {
-                updateSales(orderID, (err, _result) => {
-                    if (err) alert('Error: ' + err.stack);
+                console.log(orderID);
+                updateSales(token, orderID, (err, _result) => {
+                    if (err) {
+                        console.log('Error: ' + err.stack);
+                        dialog.showErrorBox("Error:", 'Error al actualizar las ventas');
+                    }
                     else {
                         alert('Order closed');
                         pages.diningRoom.refresh();
@@ -765,7 +876,6 @@ pages.diningRoom = {
     }
 };
 //Ok
-//Confirmar que el precio de los nuevos productos es un int
 pages.createPrTy = {
     show: function (data) {
         console.log('createPrTy.show()');
@@ -776,8 +886,11 @@ pages.createPrTy = {
         console.log('createPrTy');
         let html = ``;
         let optionHtml = ``;
-        listMenu({}, (err, colProduct) => {
-            if (err) alert(err.stack);
+        listMenu(token, {}, (err, colProduct) => {
+            if (err) {
+                console.log('Error: ' + err.stack);
+                dialog.showErrorBox("Error:", 'Error al mostrar productos');
+            }
             else {
                 colProduct.forEach((product) => {
                     if (product['type'] != null) {
@@ -806,8 +919,11 @@ pages.createPrTy = {
     addType: function () {
         console.log('createPrTy.addType()');
         let type = document.getElementById('type').value;
-        addType({ type: type }, (err, newType) => {
-            if (err) alert('Error: ' + err.stack);
+        addType(token, { type: type }, (err, newType) => {
+            if (err) {
+                console.log('Error: ' + err.stack);
+                dialog.showErrorBox("Error:", 'Error al crear tipo');
+            }
             else {
                 pages.createPrTy.refresh();
             }
@@ -821,12 +937,20 @@ pages.createPrTy = {
         var FormSelect = M.FormSelect.init(elems, {});
         let type = FormSelect.getSelectedValues();
         let description = document.getElementById('description').value;
+        var image = document.getElementById('image').files[0];
 
-        addProduct({
-            name: name, price: price,
-            typePr: type[0], description: description
-        }, (err, newProduct) => {
-            if (err) alert('Error: ' + err.stack);
+        let formData = new FormData();
+        formData.append('name', name);
+        formData.append('price', price);
+        formData.append('typePr', type);
+        formData.append('description', description);
+        formData.append('image', image);
+
+        addProduct(token, formData, (err, newOrder) => {
+            if (err) {
+                console.log('Error: ' + err.stack);
+                dialog.showErrorBox("Error:", 'Error al crear producto');
+            }
             else {
                 pages.createPrTy.refresh();
             }

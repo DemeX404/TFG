@@ -17,12 +17,8 @@
     <ul id="slide-out" class="sidenav sidenav-fixed" style="background-color: #efefef;">
         <li>
             <div class="user-view">
-                <div style="display:flex; justify-content: center;">
-                    <i class="large material-icons prefix">account_circle</i>
+                <div id="image" style="display:flex; justify-content: center;">
                 </div>
-                <!-- Esto se supone que mostrara el nombre del usuario? -->
-                <a href="#name" id="lblUser"><span class="white-text name"></span></a>
-                <a href="#email" id="lblEmail"><span class="white-text email"></span></a>
             </div>
         </li>
         <li><a href="#!" onclick="pages.home.home()" class="waves-effect waves-light btn li-h"><i
@@ -49,7 +45,12 @@
             </div>
             <div id="producTab"></div>
             <div id="products"></div>
-            <div id="basketButton"></div>
+            <div id="basketButton">
+                <div id="viewBasket" style="display: flex; justify-content: center; margin-top: 20px;">
+                    <a onclick="pages.home.order()" class="waves-effect waves-light btn"
+                        style="width: 50%; background-color:#3454D1; color:#EFEFEF">View Basket</a>
+                </div>
+            </div>
         </div>
         <!-- Modal que salta al pedir -->
         <div id="modals"></div>

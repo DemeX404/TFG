@@ -17,12 +17,10 @@
     <ul id="slide-out" class="sidenav sidenav-fixed" style="background-color: #efefef;">
         <li>
             <div class="user-view">
-                <div style="display:flex; justify-content: center;">
-                    <i class="large material-icons prefix">account_circle</i>
+                <div class="user-view">
+                    <div id="imageSN" style="display:flex; justify-content: center;">
+                    </div>
                 </div>
-                <!-- Esto se supone que mostrara el nombre del usuario? -->
-                <a href="#name" id="lblUser"><span class="white-text name"></span></a>
-                <a href="#email" id="lblEmail"><span class="white-text email"></span></a>
             </div>
         </li>
         <li><a href="#!" onclick="pages.profile.home()" class="waves-effect waves-light btn li-h"><i
@@ -40,14 +38,14 @@
                     <i class="material-icons" style="margin-top: 40px; color:#070707;">menu</i>
                 </a>
                 <div style="margin-top: 10%;">
-                    <div style="display:flex; justify-content: center;">
-                        <i class="large material-icons prefix">person</i>
+                    <div id="image" style="display:flex; justify-content: center;">
                     </div>
                     <div style="display:flex; justify-content: center;">
                         <div class="file-field input-field">
-                            <a style="font-size: 12px;">
+                            <a style="font-size: 12px;" onchange="pages.profile.showPreview(event)">
                                 <span>Edit &nbsp</span>
-                                <input type="file">
+                                <input id="profile" type="file" name="image" id="input-files"
+                                    class="form-control-file border">
                             </a>
                             <i style="font-size: 12px;" class="material-icons prefix">create</i>
                         </div>
@@ -55,8 +53,7 @@
                     </div>
                 </div>
                 <a href="#" onclick="pages.profile.update()" class="waves-effect waves-light btn"
-                    style="background-color:#3454D1; margin-top: 5%;"><i
-                        class="material-icons right">save</i>Save</a>
+                    style="background-color:#3454D1; margin-top: 5%;"><i class="material-icons right">save</i>Save</a>
             </div>
             <div style="padding-left: 25%;">
                 <div class="row">

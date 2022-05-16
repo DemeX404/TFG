@@ -14,20 +14,25 @@
 <body style="display: flex; justify-content: center; align-items: center; height:100%">
 
     <div class="card-panel">
-        <form>
+        <form id="dataUs" class="multipart/form-data">
             <div class="row">
-                <div style="display:flex; justify-content: center;">
-                    <i class="large material-icons prefix">person</i>
+                <div  style="display:flex; justify-content: center;">
+                    <i id="hide" class="large material-icons prefix">person</i>
+                    <img id="preview" style="display:none; width: 25%;">
                 </div>
                 <div style="display:flex; justify-content: center;">
-                    <div class="file-field input-field">
-                        <a style="font-size: 12px;">
+                    <div class="file-field input-field form-group">
+                        <a style="font-size: 12px;" onchange="pages.register.showPreview(event)">
                             <span>Edit &nbsp</span>
-                            <input type="file">
+                            <input id="image" type="file" name="image" id="input-files"
+                                class="form-control-file border">
                         </a>
+                        <div class="file-path-wrapper" style="display: none;">
+                            <input class="file-path validate" type="text">
+                        </div>
                         <i style="font-size: 12px;" class="material-icons prefix">create</i>
                     </div>
-                    
+
                 </div>
                 <div style="display:flex; justify-content: center;">
                     <span style="font-size: 12px;">Already have an account &nbsp</span>
