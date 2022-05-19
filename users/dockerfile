@@ -1,0 +1,12 @@
+FROM node
+
+LABEL description="Users microservice"
+LABEL version="1.0"
+LABEL maintainer="danymexicano5@gmail.com"
+
+ENV PORT=8090
+ENV URL_MONGODB="mongodb://127.0.0.1:27017"
+
+ADD users.js model_users.js package.json /app/
+RUN npm --prefix /app install
+ENTRYPOINT node /app $PORT $URL_MONGODB

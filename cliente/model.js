@@ -169,56 +169,6 @@ function updateUser(token, user, cb) {
 }
 
 //Ok-used
-function listMenu(token, opts, cb) {
-
-    MongoClient.connect(url, function (err, client) {
-        if (err) cb(err)
-        else {
-            console.log('connected.');
-            function _cb(err, result) {
-                client.close();
-                cb(err, result);
-            }
-            var db = client.db('e-order');
-            var col = db.collection('product');
-
-            var productsArray = [];
-
-            col.find({ type: { $exists: true } }).toArray((err, types) => {
-                if (err) _cb(err);
-                else {
-                    types.forEach((infoType) => {
-                        productsArray.push({
-                            _id: infoType._id.toHexString(), type: infoType.type, lstPr: infoType.lstPr
-                        });
-                    });
-
-                    col.find({ name: { $exists: true } }).toArray((err, products) => {
-                        if (err) _cb(err);
-                        else {
-                            products.forEach((infoPr) => {
-                                if (infoPr.image != 'none') {
-                                    productsArray.push({
-                                        _id: infoPr._id.toHexString(), name: infoPr.name, price: infoPr.price,
-                                        typePr: infoPr.typePr, sale: infoPr.sales, description: infoPr.description, image: infoPr.image
-                                    });
-                                } else {
-                                    productsArray.push({
-                                        _id: infoPr._id.toHexString(), name: infoPr.name, price: infoPr.price,
-                                        typePr: infoPr.typePr, sale: infoPr.sales, description: infoPr.description, image: 'images/1entrante.jpg'
-                                    });
-                                }
-                            });
-                            _cb(null, productsArray);
-                        }
-                    });
-                }
-            });
-        }
-    });
-}
-
-//Ok-used
 function createOrder(token, content, cb) {
     if (!content.qty > 0) cb(new Error('Quantity should be more than 0'));
     else {
@@ -318,7 +268,6 @@ function editOrder(token, orderID, content, cb) {
 
             var db = client.db('e-order');
             var col = db.collection('customer');
-            console.log(content);
 
             if (!content.methodPay) {
                 col.findOne({ _id: new mongodb.ObjectId(orderID) }, (err, _order) => {
@@ -365,7 +314,6 @@ function cancelOrder(token, orderID, cb) {
                 cb(err, result);
             }
 
-            console.log(orderID);
             var db = client.db('e-order');
             var colCustomer = db.collection('customer');
 
@@ -392,7 +340,7 @@ function cancelOrder(token, orderID, cb) {
     });
 }
 
-//Porque no funciona en el servidor
+//Ok
 function removeProductOrder(token, orderID, productID, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) _cb(err);
@@ -420,8 +368,41 @@ function removeProductOrder(token, orderID, productID, cb) {
         }
     });
 }
-//Ok-used
-function printTicket(token, userID, cb) {
+
+//ok
+function openOrders(token, cb) {
+    MongoClient.connect(url, function (err, client) {
+        if (err) cb(err)
+
+        console.log('connected.');
+        function _cb(err, result) {
+            client.close();
+            cb(err, result);
+        }
+
+        var db = client.db('e-order');
+        var colCustomer = db.collection('customer');
+
+        var userOrder = [];
+
+        colCustomer.find({ paid: false }).toArray((err, _orders) => {
+            if (err) _cb(err);
+            else {
+                _orders.forEach((_order) => {
+                    userOrder.push({
+                        refClient: _order.refClient,
+                        num_table: _order.num_table,
+                        methodPay: _order.methodPay
+                    });
+                });
+                _cb(null, userOrder)
+            }
+        });
+    });
+}
+
+//Ok
+function closeOrder(token, orderID, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err)
         else {
@@ -433,54 +414,15 @@ function printTicket(token, userID, cb) {
 
             var db = client.db('e-order');
             var colCustomer = db.collection('customer');
-            var colProduct = db.collection('product');
 
-            var orderArray = [];
-
-            colCustomer.findOne({ _id: new mongodb.ObjectId(userID) }, (err, _user) => {
-                if (err) _cb(err);
-                else {
-                    _user.orders.forEach((ordersID) => {
-                        colCustomer.findOne({ _id: new mongodb.ObjectId(ordersID) }, (err, _order) => {
-                            if (err) _cb(err);
-                            else {
-                                if (_order.paid == false) {
-                                    let flag = _order.productOrder.length;
-                                    _order.productOrder.forEach((productID) => {
-                                        colProduct.findOne({ _id: new mongodb.ObjectId(productID.productId) }, (err, _product) => {
-                                            if (err) _cb(err);
-                                            else {
-
-                                                if (_product.image != 'none') {
-                                                    orderArray.push({
-                                                        id: productID.id, idOrder: _order._id.toHexString(), idPr: _product._id.toHexString(), qty: productID.qty,
-                                                        notes: productID.notes, name: _product.name, price: _product.price, description: _product.description, image: _product.image
-                                                    });
-                                                } else {
-                                                    orderArray.push({
-                                                        id: productID.id, idOrder: _order._id.toHexString(), idPr: _product._id.toHexString(), qty: productID.qty,
-                                                        notes: productID.notes, name: _product.name, price: _product.price, description: _product.description, image: 'images/1entrante.jpg'
-                                                    });
-                                                }
-
-
-                                                //No me gusta esta solucion pero es funcional
-                                                flag--;
-                                                if (flag == 0) {
-                                                    close(orderArray);
-                                                }
-                                            }
-                                        });
-                                    });
-                                }
-                                function close(result) {
-                                    _cb(null, result);
-                                }
-                            }
-                        });
-                    });
-                }
-            });
+            colCustomer.findOneAndUpdate({ _id: new mongodb.ObjectId(orderID) },
+                { "$set": { "paid": true } },
+                (err, order) => {
+                    if (err) _cb(err);
+                    else {
+                        _cb(null, ('Order closed'));
+                    }
+                });
         }
     });
 }
@@ -636,7 +578,6 @@ function addProduct(token, newProduct, cb) {
     }
 }
 
-
 //Ok
 function updateProduct(token, productID, product, cb) {
     MongoClient.connect(url, function (err, client) {
@@ -764,40 +705,58 @@ function updateSales(token, orderID, cb) {
     });
 }
 
-//ok
-function openOrders(token, cb) {
+//Ok-used
+function listMenu(token, opts, cb) {
+
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err)
-
-        console.log('connected.');
-        function _cb(err, result) {
-            client.close();
-            cb(err, result);
-        }
-
-        var db = client.db('e-order');
-        var colCustomer = db.collection('customer');
-
-        var userOrder = [];
-
-        colCustomer.find({ paid: false }).toArray((err, _orders) => {
-            if (err) _cb(err);
-            else {
-                _orders.forEach((_order) => {
-                    userOrder.push({
-                        refClient: _order.refClient,
-                        num_table: _order.num_table,
-                        methodPay: _order.methodPay
-                    });
-                });
-                _cb(null, userOrder)
+        else {
+            console.log('connected.');
+            function _cb(err, result) {
+                client.close();
+                cb(err, result);
             }
-        });
+            var db = client.db('e-order');
+            var col = db.collection('product');
+
+            var productsArray = [];
+
+            col.find({ type: { $exists: true } }).toArray((err, types) => {
+                if (err) _cb(err);
+                else {
+                    types.forEach((infoType) => {
+                        productsArray.push({
+                            _id: infoType._id.toHexString(), type: infoType.type, lstPr: infoType.lstPr
+                        });
+                    });
+
+                    col.find({ name: { $exists: true } }).toArray((err, products) => {
+                        if (err) _cb(err);
+                        else {
+                            products.forEach((infoPr) => {
+                                if (infoPr.image != 'none') {
+                                    productsArray.push({
+                                        _id: infoPr._id.toHexString(), name: infoPr.name, price: infoPr.price,
+                                        typePr: infoPr.typePr, sale: infoPr.sales, description: infoPr.description, image: infoPr.image
+                                    });
+                                } else {
+                                    productsArray.push({
+                                        _id: infoPr._id.toHexString(), name: infoPr.name, price: infoPr.price,
+                                        typePr: infoPr.typePr, sale: infoPr.sales, description: infoPr.description, image: 'images/1entrante.jpg'
+                                    });
+                                }
+                            });
+                            _cb(null, productsArray);
+                        }
+                    });
+                }
+            });
+        }
     });
 }
 
-//Ok
-function closeOrder(token, orderID, cb) {
+//Ok-used
+function printTicket(token, userID, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err)
         else {
@@ -809,15 +768,54 @@ function closeOrder(token, orderID, cb) {
 
             var db = client.db('e-order');
             var colCustomer = db.collection('customer');
+            var colProduct = db.collection('product');
 
-            colCustomer.findOneAndUpdate({ _id: new mongodb.ObjectId(orderID) },
-                { "$set": { "paid": true } },
-                (err, order) => {
-                    if (err) _cb(err);
-                    else {
-                        _cb(null, ('Order closed'));
-                    }
-                });
+            var orderArray = [];
+
+            colCustomer.findOne({ _id: new mongodb.ObjectId(userID) }, (err, _user) => {
+                if (err) _cb(err);
+                else {
+                    _user.orders.forEach((ordersID) => {
+                        colCustomer.findOne({ _id: new mongodb.ObjectId(ordersID) }, (err, _order) => {
+                            if (err) _cb(err);
+                            else {
+                                if (_order.paid == false) {
+                                    let flag = _order.productOrder.length;
+                                    _order.productOrder.forEach((productID) => {
+                                        colProduct.findOne({ _id: new mongodb.ObjectId(productID.productId) }, (err, _product) => {
+                                            if (err) _cb(err);
+                                            else {
+
+                                                if (_product.image != 'none') {
+                                                    orderArray.push({
+                                                        id: productID.id, idOrder: _order._id.toHexString(), idPr: _product._id.toHexString(), qty: productID.qty,
+                                                        notes: productID.notes, name: _product.name, price: _product.price, description: _product.description, image: _product.image
+                                                    });
+                                                } else {
+                                                    orderArray.push({
+                                                        id: productID.id, idOrder: _order._id.toHexString(), idPr: _product._id.toHexString(), qty: productID.qty,
+                                                        notes: productID.notes, name: _product.name, price: _product.price, description: _product.description, image: 'images/1entrante.jpg'
+                                                    });
+                                                }
+
+
+                                                //No me gusta esta solucion pero es funcional
+                                                flag--;
+                                                if (flag == 0) {
+                                                    close(orderArray);
+                                                }
+                                            }
+                                        });
+                                    });
+                                }
+                                function close(result) {
+                                    _cb(null, result);
+                                }
+                            }
+                        });
+                    });
+                }
+            });
         }
     });
 }

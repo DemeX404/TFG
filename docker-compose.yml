@@ -1,0 +1,68 @@
+version: '3.8'
+services:
+  users:
+    build: 
+      ./users
+    environment:
+      PORT: 
+        '8090'
+      URL_MONGODB: 'mongodb://mongo1:27017'
+    ports:
+      - '8090:8090'
+    networks:
+      - lan
+    depends_on:
+      - mongo1
+    volumes:
+      - images1:/app/images
+      - ./cliente/app/www/images/users:/app/images
+
+  mongo1:
+    image: mongo
+    networks:
+      - lan
+    volumes:
+      - vol1:/data/db
+    ports:
+      - '27090:27017'
+
+  product:
+    build: 
+      ./product
+    environment:
+      PORT: 
+        '8080'
+      URL_USERS: 'http://host.docker.internal:8090/e-order'
+      URL_MONGODB: 'mongodb://mongo2:27017'
+    ports:
+      - '8080:8080'
+    networks:
+      - lan
+    depends_on:
+      - users
+      - mongo2
+    volumes:
+      - images2:/app/images
+      - ./cliente/app/www/images/product:/app/images
+
+  
+  mongo2:
+    image: mongo
+    networks:
+      - lan
+    volumes:
+      - vol2:/data/db
+    ports:
+      - '27080:27017'
+      
+volumes:
+  vol1:
+  vol2:
+  images1:
+  users:
+    external: true
+  images2:
+  product:
+    external: true
+networks:
+  lan:

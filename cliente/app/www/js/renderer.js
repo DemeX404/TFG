@@ -236,10 +236,8 @@ pages.home = {
                 dialog.showErrorBox("Error:", 'Error al hacer el login');
             }
             else {
-                //Esto lo bloquea??
                 document.getElementById(`qty_${productID}`).value = '0';
                 document.getElementById(`textarea_${productID}`).value = '';
-                alert('Product added to the order');
             }
         });
     },
@@ -326,7 +324,6 @@ pages.profile = {
                     dialog.showErrorBox("Error:", 'Error al actualizar los datos');
                 }
                 else {
-                    alert('Usuario actualizado con exito');
                     window.user = _user
                 }
             });
@@ -476,7 +473,6 @@ pages.order = {
             }
             else {
                 pages.order.refresh();
-                alert('Order edited');
             }
         });
 
@@ -490,7 +486,6 @@ pages.order = {
                 dialog.showErrorBox("Error:", 'Error al cancelar la orden');
             }
             else {
-                alert(_result);
                 navigateTo('home');
             }
         });
@@ -504,7 +499,6 @@ pages.order = {
                 dialog.showErrorBox("Error:", 'Error al eliminar el producto');
             }
             else {
-                alert(_result);
                 pages.order.refresh();
             }
         });
@@ -574,9 +568,7 @@ pages.ticket = {
                 dialog.showErrorBox("Error:", 'Error al enviar la orden');
             }
             else {
-                alert('Method payment ' + method);
                 navigateTo('home');
-                pages.diningRoom.refresh();
             }
         });
 
@@ -651,9 +643,6 @@ pages.creatEmpl = {
             if (err) {
                 console.log('Error: ' + err.stack);
                 dialog.showErrorBox("Error:", 'Error al crear empleado');
-            }
-            else {
-                alert('Employee create succefuly');
             }
         });
     }
@@ -841,7 +830,6 @@ pages.diningRoom = {
                         dialog.showErrorBox("Error:", 'Error al actualizar las ventas');
                     }
                     else {
-                        alert('Order closed');
                         pages.diningRoom.refresh();
                     }
                 });

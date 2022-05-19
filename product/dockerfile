@@ -1,0 +1,14 @@
+FROM node
+
+LABEL description="Product microservice"
+LABEL version="1.0"
+LABEL maintainer="danymexicano5@gmail.com"
+
+ENV PORT=8080
+ENV URL_USERS="http://host.docker.internal:8090/e-order"
+ENV URL_MONGODB="mongodb://127.0.0.1:27017"
+
+ADD product.js model_product.js package.json /app/
+RUN mkdir -p /app/images
+RUN npm --prefix /app install
+ENTRYPOINT node /app $PORT $URL_USERS $URL_MONGODB

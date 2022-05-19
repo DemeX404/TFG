@@ -1,8 +1,10 @@
 const axios = require('axios');
-const url = 'http://localhost:8080/e-order';
+const urlBaseUser = 'http://localhost:8090/e-order';
+const urlBaseProduct = 'http://localhost:8080/e-order';
+
 
 function login(name, password, cb) {
-    axios.post(url + '/sessions',
+    axios.post(urlBaseUser + '/sessions',
         { name: name, password: password })
         .then(res => {
             cb(null, res.data.token, res.data.user)
@@ -15,7 +17,7 @@ function login(name, password, cb) {
 /****           Users Resources         ****/
 
 function addUser(user, cb) {
-    axios.post(url + '/users', user)
+    axios.post(urlBaseUser + '/users', user)
         .then(res => {
             cb(null, res.data);
         })
@@ -26,7 +28,7 @@ function addUser(user, cb) {
 
 function updateUser(token, content, cb) {
 
-    axios.put(url + '/users/' + token, content, {
+    axios.put(urlBaseUser + '/users/' + token, content, {
         params: { token: token }
     })
         .then(res => {
@@ -36,25 +38,12 @@ function updateUser(token, content, cb) {
             cb(err);
         });
 }
-
-
 
 /****           Orders Resources         ****/
-function listMenu(token, { }, cb) {
-    axios.get(url + '/order', {
-        params: { token: token }
-    })
-        .then(res => {
-            cb(null, res.data)
-        })
-        .catch(err => {
-            cb(err);
-        });
-}
 
 function createOrder(token, content, cb) {
 
-    axios.post(url + '/order', content, {
+    axios.post(urlBaseUser + '/order', content, {
         params: { token: token }
     })
         .then(res => {
@@ -67,7 +56,7 @@ function createOrder(token, content, cb) {
 
 function editOrder(token, orderID, content, cb) {
 
-    axios.put(url + '/order/' + orderID, content, {
+    axios.put(urlBaseUser + '/order/' + orderID, content, {
         params: { token: token }
     })
         .then(res => {
@@ -80,21 +69,7 @@ function editOrder(token, orderID, content, cb) {
 
 function cancelOrder(token, orderID, cb) {
 
-    axios.delete(url + '/order/' + orderID, {
-        params: { token: token }
-    })
-        .then(res => {
-            cb(null, res.data)
-        })
-        .catch(err => {
-            cb(err);
-        });
-}
-
-function updateSales(token, orderID, cb) {
-    console.log(orderID);
-
-    axios.put(url + '/order/sales/' + orderID, null, {
+    axios.delete(urlBaseUser + '/order/' + orderID, {
         params: { token: token }
     })
         .then(res => {
@@ -107,7 +82,7 @@ function updateSales(token, orderID, cb) {
 
 function closeOrder(token, orderID, cb) {
 
-    axios.put(url + '/order/close/' + orderID, null, {
+    axios.put(urlBaseUser + '/order/close/' + orderID, null, {
         params: { token: token }
     })
         .then(res => {
@@ -120,7 +95,7 @@ function closeOrder(token, orderID, cb) {
 
 function removeProductOrder(token, orderID, prodcutID, cb) {
 
-    axios.put(url + '/order/' + orderID + '/' + prodcutID, null, {
+    axios.put(urlBaseUser + '/order/' + orderID + '/' + prodcutID, null, {
         params: { token: token }
     })
         .then(res => {
@@ -133,7 +108,7 @@ function removeProductOrder(token, orderID, prodcutID, cb) {
 
 function openOrders(token, cb) {
 
-    axios.get(url + '/order/open', {
+    axios.get(urlBaseUser + '/order/open', {
         params: { token: token }
     })
         .then(res => {
@@ -146,7 +121,32 @@ function openOrders(token, cb) {
 
 function printTicket(token, userID, cb) {
 
-    axios.get(url + '/order/product/' + userID, {
+    axios.get(urlBaseProduct + '/order/product/' + userID, {
+        params: { token: token }
+    })
+        .then(res => {
+            cb(null, res.data)
+        })
+        .catch(err => {
+            cb(err);
+        });
+}
+
+function listMenu(token, { }, cb) {
+    axios.get(urlBaseProduct + '/order', {
+        params: { token: token }
+    })
+        .then(res => {
+            cb(null, res.data)
+        })
+        .catch(err => {
+            cb(err);
+        });
+}
+
+function updateSales(token, orderID, cb) {
+
+    axios.put(urlBaseProduct + '/order/sales/' + orderID, null, {
         params: { token: token }
     })
         .then(res => {
@@ -160,7 +160,7 @@ function printTicket(token, userID, cb) {
 
 function addType(token, content, cb) {
 
-    axios.post(url + '/product/type', content, {
+    axios.post(urlBaseProduct + '/product/type', content, {
         params: { token: token }
     })
         .then(res => {
@@ -173,7 +173,7 @@ function addType(token, content, cb) {
 
 function addProduct(token, content, cb) {
 
-    axios.post(url + '/product', content, {
+    axios.post(urlBaseProduct + '/product', content, {
         headers: { 'Content-Type': 'multipart/form-data' },
         params: { token: token }
     })
@@ -187,7 +187,7 @@ function addProduct(token, content, cb) {
 
 function updateType(token, typeID, content, cb) {
 
-    axios.put(url + '/product/type/' + typeID, content, {
+    axios.put(urlBaseProduct + '/product/type/' + typeID, content, {
         params: { token: token }
     })
         .then(res => {
@@ -200,7 +200,7 @@ function updateType(token, typeID, content, cb) {
 
 function updateProduct(token, productID, content, cb) {
 
-    axios.put(url + '/product/type/' + productID, content, {
+    axios.put(urlBaseProduct + '/product/type/' + productID, content, {
         params: { token: token }
     })
         .then(res => {
@@ -213,7 +213,7 @@ function updateProduct(token, productID, content, cb) {
 
 function deleteType(token, typeID, cb) {
 
-    axios.delete(url + '/product/type/' + typeID, {
+    axios.delete(urlBaseProduct + '/product/type/' + typeID, {
         params: { token: token }
     })
         .then(res => {
@@ -226,7 +226,7 @@ function deleteType(token, typeID, cb) {
 
 function deleteProduct(token, productID, cb) {
 
-    axios.delete(url + '/product/' + productID, {
+    axios.delete(urlBaseProduct + '/product/' + productID, {
         params: { token: token }
     })
         .then(res => {
