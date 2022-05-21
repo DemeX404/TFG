@@ -1,4 +1,6 @@
 const { dialog } = require('electron').remote
+const { remote } = require('electron')
+
 
 /*Se almacena la GUI de nuestra aplicacion web, desde aqui señalamos que paginas se van a cargar
  y cuales se ocultan */
@@ -20,7 +22,7 @@ pages.login = {
         login(name, password, (err, token, user) => {
             if (err) {
                 console.log('Error: ' + err.stack);
-                dialog.showErrorBox("Error:", 'Error al hacer el login');
+                dialog.showErrorBox("Error:", 'Wrong credentials');
             }
             else {
                 //Guardamos el token
@@ -66,9 +68,18 @@ pages.register = {
         addUser(formData, (err, user) => {
             if (err) {
                 console.log('Error: ' + err.stack);
-                dialog.showErrorBox("Error:", 'Error al actualizar el usuario');
+                dialog.showErrorBox("Error:", 'Error at the moment to uploa the user');
             }
             else {
+                remote.dialog.showMessageBox(
+                    remote.getCurrentWindow(),
+                    {
+                        title: 'Register',
+                        message: 'User registered'
+                    }
+                ).then(() => {
+                    console.log('Dialog closed!');
+                });
                 navigateTo('login')
             }
         });
@@ -115,7 +126,7 @@ pages.home = {
         listMenu(token, {}, (err, colProduct) => {
             if (err) {
                 console.log('Error: ' + err.stack);
-                dialog.showErrorBox("Error:", 'Error al hacer listar los productos');
+                dialog.showErrorBox("Error:", 'Error showing products');
             }
             else {
                 let type = [];
@@ -127,7 +138,7 @@ pages.home = {
                         htmlProductsHead += `
                         <div id="${product.type}" class="col s12">
                             <div class="section">
-                                <h4 style="color: #3454D1;"> ${product.type}</h4>
+                                <h4 class="center-align" style="color: #3454D1;"> ${product.type}</h4>
                             </div>
                             <div class="divider"></div>
                             <div id="products_${product.type}"></div>
@@ -146,7 +157,7 @@ pages.home = {
                                     <h5>${product.name}</h5>
                                     <span>${product.description} </span>
                                 </div>
-                                <img class="responsive-img" style="width: 25%; align-self: flex-end;"
+                                <img class="responsive-img" style="width: 15%; align-self: flex-end;"
                                 src="${product.image}">
                             </div>
                         </a>`;
@@ -155,8 +166,13 @@ pages.home = {
                         <div class="modal-content">
                             <div class="col s12 m6">
                                 <div class="card">
+                                    <div class="modal-head">
+                                        <a href="#!" class="modal-close right-align">
+                                            <i class="material-icons">clear</i>
+                                        </a>
+                                    </div>
                                     <div class="card-image">
-                                        <img src="${product.image}" style="width: 50%; margin-left: auto; margin-right: auto;">
+                                        <img src="${product.image}" style="width: 25%; margin-left: auto; margin-right: auto;">
                                     </div>
                                     <div class="divider"></div>
                                     <div class="card-content">
@@ -186,13 +202,13 @@ pages.home = {
                                                 <i class="material-icons">remove</i>
                                             </a>
                                             <input id="qty_${product._id}" disabled type="number" style="width: 50%;border-style: groove; text-align: center;"
-                                                value="0">
+                                                value="1">
                                             <a onclick="pages.home.increment('${product._id}')" class="waves-teal btn-flat" style="margin: 0px; color: #070707;">
                                                 <i class="material-icons">add</i>
                                             </a>
                                         </div>
-                                        <a href="#" onclick="pages.home.createOrder('${product._id}')" class="waves-effect waves-light btn"
-                                            style="width:25%;background-color:#3454D1;">Ok</a>
+                                        <a href="#" onclick="pages.home.createOrder('${product._id}')" class="modal-close waves-effect waves-light btn"
+                                            style="width:25%;background-color:#3454D1;">Add to basket</a>
                                     </div>
                                 </div>
                             </div>
@@ -233,11 +249,20 @@ pages.home = {
         createOrder(token, { productId: productID, qty: qty, notes: notes }, (err, _order) => {
             if (err) {
                 console.log('Error: ' + err.stack);
-                dialog.showErrorBox("Error:", 'Error al hacer el login');
+                dialog.showErrorBox("Error:", 'Error when adding the product to the order');
             }
             else {
                 document.getElementById(`qty_${productID}`).value = '0';
                 document.getElementById(`textarea_${productID}`).value = '';
+                remote.dialog.showMessageBox(
+                    remote.getCurrentWindow(),
+                    {
+                        title: 'Order',
+                        message: 'Product added to the order'
+                    }
+                ).then(() => {
+                    console.log('Dialog closed!');
+                });
             }
         });
     },
@@ -321,10 +346,20 @@ pages.profile = {
             (err, _user) => {
                 if (err) {
                     console.log('Error: ' + err.stack);
-                    dialog.showErrorBox("Error:", 'Error al actualizar los datos');
+                    dialog.showErrorBox("Error:", 'Error in upload user data');
                 }
                 else {
                     window.user = _user
+                    remote.dialog.showMessageBox(
+                        remote.getCurrentWindow(),
+                        {
+                            title: 'Profile',
+                            message: 'User data uploaded'
+                        }
+                    ).then(() => {
+                        console.log('Dialog closed!');
+                    });
+
                 }
             });
     },
@@ -362,7 +397,7 @@ pages.order = {
         printTicket(token, token, (err, productList) => {
             if (err) {
                 console.log('Error: ' + err.stack);
-                dialog.showErrorBox("Error:", 'Error al mostrar los productos');
+                dialog.showErrorBox("Error:", 'Error showing products');
             }
             else {
                 let totalPrice = 0;
@@ -469,9 +504,18 @@ pages.order = {
         editOrder(token, orderID, { productId: idPr, qty: qty, notes: note }, (err, result) => {
             if (err) {
                 console.log('Error: ' + err.stack);
-                dialog.showErrorBox("Error:", 'Error al editar la orden');
+                dialog.showErrorBox("Error:", 'Error at the moment to edit order');
             }
             else {
+                remote.dialog.showMessageBox(
+                    remote.getCurrentWindow(),
+                    {
+                        title: 'Order',
+                        message: 'Order edited'
+                    }
+                ).then(() => {
+                    console.log('Dialog closed!');
+                });
                 pages.order.refresh();
             }
         });
@@ -483,9 +527,18 @@ pages.order = {
         cancelOrder(token, orderID, (err, _result) => {
             if (err) {
                 console.log('Error: ' + err.stack);
-                dialog.showErrorBox("Error:", 'Error al cancelar la orden');
+                dialog.showErrorBox("Error:", 'Error at the moment to cancel the order');
             }
             else {
+                remote.dialog.showMessageBox(
+                    remote.getCurrentWindow(),
+                    {
+                        title: 'Order',
+                        message: 'Order canceled'
+                    }
+                ).then(() => {
+                    console.log('Dialog closed!');
+                });
                 navigateTo('home');
             }
         });
@@ -496,9 +549,18 @@ pages.order = {
         removeProductOrder(token, orderID, id, (err, _result) => {
             if (err) {
                 console.log('Error: ' + err.stack);
-                dialog.showErrorBox("Error:", 'Error al eliminar el producto');
+                dialog.showErrorBox("Error:", 'Error at the moment to delete the product to the order');
             }
             else {
+                remote.dialog.showMessageBox(
+                    remote.getCurrentWindow(),
+                    {
+                        title: 'Order',
+                        message: 'Product deleted to the order'
+                    }
+                ).then(() => {
+                    console.log('Dialog closed!');
+                });
                 pages.order.refresh();
             }
         });
@@ -520,9 +582,10 @@ pages.ticket = {
         printTicket(token, token, (err, productList) => {
             if (err) {
                 console.log('Error: ' + err.stack);
-                dialog.showErrorBox("Error:", 'Error al mostrar los productos');
+                dialog.showErrorBox("Error:", 'Error showing products');
             }
             else {
+
                 let totalPrice = 0;
                 let htmlTicket = ``;
                 let htmlPaymentMethod = ``;
@@ -565,9 +628,18 @@ pages.ticket = {
         editOrder(token, orderID, content, (err, result) => {
             if (err) {
                 console.log('Error: ' + err.stack);
-                dialog.showErrorBox("Error:", 'Error al enviar la orden');
+                dialog.showErrorBox("Error:", 'Error at the moment to send the order');
             }
             else {
+                remote.dialog.showMessageBox(
+                    remote.getCurrentWindow(),
+                    {
+                        title: 'Ticket',
+                        message: 'The waiter is on his way '
+                    }
+                ).then(() => {
+                    console.log('Dialog closed!');
+                });
                 navigateTo('home');
             }
         });
@@ -591,7 +663,7 @@ pages.owner = {
         listMenu(token, {}, (err, colProduct) => {
             if (err) {
                 console.log('Error: ' + err.stack);
-                dialog.showErrorBox("Error:", 'Error al mostrar los productos');
+                dialog.showErrorBox("Error:", 'Error showing the products');
             }
             else {
                 colProduct.forEach((product) => {
@@ -642,7 +714,17 @@ pages.creatEmpl = {
         addUser({ name: name, surname: surname, dni: dni, password: password, phone: phone, type: type }, (err, employe) => {
             if (err) {
                 console.log('Error: ' + err.stack);
-                dialog.showErrorBox("Error:", 'Error al crear empleado');
+                dialog.showErrorBox("Error:", 'Error creating employee');
+            }else{
+                remote.dialog.showMessageBox(
+                    remote.getCurrentWindow(),
+                    {
+                        title: 'Create Employee',
+                        message: 'Employee create'
+                    }
+                ).then(() => {
+                    console.log('Dialog closed!');
+                });
             }
         });
     }
@@ -677,14 +759,14 @@ pages.kitchen = {
         openOrders(token, (err, _openOrders) => {
             if (err) {
                 console.log('Error: ' + err.stack);
-                dialog.showErrorBox("Error:", 'Error al mostrar las ordenes');
+                dialog.showErrorBox("Error:", 'Error showing orders');
             }
             else {
                 _openOrders.forEach((_user) => {
                     printTicket(token, _user.refClient, (err, order) => {
                         if (err) {
                             console.log('Error: ' + err.stack);
-                            dialog.showErrorBox("Error:", 'Error al mostrar los productos');
+                            dialog.showErrorBox("Error:", 'Error showing products');
                         }
                         else {
                             htmlBody += `
@@ -770,7 +852,7 @@ pages.diningRoom = {
         openOrders(token, (err, _openOrders) => {
             if (err) {
                 console.log('Error: ' + err.stack);
-                dialog.showErrorBox("Error:", 'Error al mostrar las ordenes');
+                dialog.showErrorBox("Error:", 'Error showing orders');
             }
             else if (_openOrders.length == 0) document.getElementById('body').innerHTML = htmlBody;
             else {
@@ -778,7 +860,7 @@ pages.diningRoom = {
                     printTicket(token, _order.refClient, (err, order) => {
                         if (err) {
                             console.log('Error: ' + err.stack);
-                            dialog.showErrorBox("Error:", 'Error al mostrar los productos');
+                            dialog.showErrorBox("Error:", 'Error showing products');
                         }
                         else {
                             let finalPrice = 0;
@@ -820,14 +902,14 @@ pages.diningRoom = {
         closeOrder(token, orderID, (err, result) => {
             if (err) {
                 console.log('Error: ' + err.stack);
-                dialog.showErrorBox("Error:", 'Error al cerrar las ordenes');
+                dialog.showErrorBox("Error:", 'Error showing orders');
             }
             else {
                 console.log(orderID);
                 updateSales(token, orderID, (err, _result) => {
                     if (err) {
                         console.log('Error: ' + err.stack);
-                        dialog.showErrorBox("Error:", 'Error al actualizar las ventas');
+                        dialog.showErrorBox("Error:", 'Error uploading sales');
                     }
                     else {
                         pages.diningRoom.refresh();
@@ -877,7 +959,7 @@ pages.createPrTy = {
         listMenu(token, {}, (err, colProduct) => {
             if (err) {
                 console.log('Error: ' + err.stack);
-                dialog.showErrorBox("Error:", 'Error al mostrar productos');
+                dialog.showErrorBox("Error:", 'Error showing products');
             }
             else {
                 colProduct.forEach((product) => {
@@ -910,9 +992,18 @@ pages.createPrTy = {
         addType(token, { type: type }, (err, newType) => {
             if (err) {
                 console.log('Error: ' + err.stack);
-                dialog.showErrorBox("Error:", 'Error al crear tipo');
+                dialog.showErrorBox("Error:", 'Error add the new tye');
             }
             else {
+                remote.dialog.showMessageBox(
+                    remote.getCurrentWindow(),
+                    {
+                        title: 'Add Type',
+                        message: 'New type created'
+                    }
+                ).then(() => {
+                    console.log('Dialog closed!');
+                });
                 pages.createPrTy.refresh();
             }
         });
@@ -937,9 +1028,18 @@ pages.createPrTy = {
         addProduct(token, formData, (err, newOrder) => {
             if (err) {
                 console.log('Error: ' + err.stack);
-                dialog.showErrorBox("Error:", 'Error al crear producto');
+                dialog.showErrorBox("Error:", 'Error add the new product');
             }
             else {
+                remote.dialog.showMessageBox(
+                    remote.getCurrentWindow(),
+                    {
+                        title: 'New Product',
+                        message: 'New product created'
+                    }
+                ).then(() => {
+                    console.log('Dialog closed!');
+                });
                 pages.createPrTy.refresh();
             }
         });

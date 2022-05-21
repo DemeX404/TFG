@@ -7,7 +7,7 @@ let win = null;
 //No podia cargar el require(fs) porque faltaba el contextIsolation
 app.on('ready', function () {
     win = new BrowserWindow({
-        width: 800, height: 600,
+        width: 1000, height: 800,
         webPreferences: { nodeIntegration: true, enableRemoteModule: true}
     });
     win.loadURL(`file://${__dirname}/www/index.html`);
