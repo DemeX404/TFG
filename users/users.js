@@ -60,7 +60,6 @@ app.get('/e-order/sessions', function (req, res) {
     });
 });
 
-//AGREGAR A LA DOCUMENTACION
 app.get('/e-order/info/:id', (req, res) => {
     console.log('Get collection: ' + req.params.id);
 

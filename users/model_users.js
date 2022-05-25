@@ -429,7 +429,7 @@ function closeOrder(token, orderID, cb) {
     });
 }
 
-//Agregar esta funcion a la API
+//Ok
 function getCollection(token, id, cb) {
     MongoClient.connect(url, function (err, client) {
         if (err) cb(err)

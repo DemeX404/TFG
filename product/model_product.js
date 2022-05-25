@@ -73,11 +73,8 @@ function addType(token, type, cb) {
                         });
                     }
                 });
-
-
         }
     });
-
 }
 //Ok
 function updateType(token, typeID, newType, cb) {
@@ -173,11 +170,9 @@ function addProduct(token, newProduct, cb) {
                         else if (_product) _cb(new Error('Product already exists'));
                         else {
                             newProduct['sales'] = 0;
-                            console.log('Insertando producto');
                             product.insertOne(newProduct, (err, result) => {
                                 if (err) _cb(err);
                                 else {
-                                    console.log('Actualizando tipo');
                                     product.updateOne({ type: newProduct.typePr }, { $push: { lstPr: result.insertedId.toHexString() } }, (err, update) => {
                                         if (err) _cb(err);
                                         else {

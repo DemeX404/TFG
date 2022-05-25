@@ -500,7 +500,6 @@ pages.order = {
         let qty = document.getElementById(`qty_${idPr}`).value
         let note = document.getElementById(`textarea_${idPr}`).value;
 
-        console.log(orderID);
         editOrder(token, orderID, { productId: idPr, qty: qty, notes: note }, (err, result) => {
             if (err) {
                 console.log('Error: ' + err.stack);
