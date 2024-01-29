@@ -1,0 +1,49 @@
+<!-- <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="form">
+  <button type="submit" [disabled]="!profileForm.valid">Submit
+    <span class="material-symbols-outlined ">
+      arrow_forward
+    </span>
+  </button>
+  <div class="mixIcon">
+    <span *ngIf="!selectedImage" class="material-symbols-outlined account_circle">
+      account_circle
+      <span class="material-symbols-outlined edit_square" (click)="openFile()">
+        edit_square
+      </span>
+    </span>
+    <div *ngIf="selectedImage">
+      <span class="material-symbols-outlined account_circle">
+        <img [src]="selectedImage" alt="Selected Image" fill class="imageIcon">
+        <span class="material-symbols-outlined edit_square" (click)="openFile()">
+          edit_square
+        </span>
+      </span>
+    </div>
+    <input id="icon" class="icon" formControlName="icon" type="file" accept="image/*" (change)="loadImage($event)">
+  </div>
+  <div class="input-container">
+    <input id="name" type="text" formControlName="name">
+    <label for="name"> Name: </label>
+  </div>
+  <div class="input-container">
+    <input id="surname" type="text" formControlName="surname">
+    <label for="surname"> Surname: </label>
+  </div>
+  <div class="input-container">
+    <input id="email" type="text" formControlName="email">
+    <label for="email"> Email: </label>
+  </div>
+  <div class="input-container">
+    <input id="password" type="text" formControlName="password">
+    <label for="password"> Password: </label>
+  </div>
+  <div class="input-container">
+    <input id="phone" type="text" formControlName="phone">
+    <label for="phone"> Phone: </label>
+  </div>
+  <dynamic-input [value]="50"></dynamic-input>
+</form> -->
+
+<div>
+  <app-dynamic-form [questions]="questions$ | async"></app-dynamic-form>
+</div>

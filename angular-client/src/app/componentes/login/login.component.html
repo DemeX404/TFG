@@ -1,0 +1,11 @@
+<h1>WELCOME TO THE E-ORDER APP</h1>
+<form [formGroup]="userInfo" (ngSubmit)="onSubmit()">
+    <div class="input-container">
+        <input id="name" type="text" formControlName="name">
+        <label for="name"> Name: </label>
+    </div>
+    <div class="input-container">
+        <input id="surname" type="text" formControlName="surname">
+        <label for="surname"> Surname: </label>
+    </div>
+</form>
