@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { DynamicFormQuestionComponent } from './dynamic-form-question.component';
+import { DynamicFormQuestionComponent } from './dynamic-form-fields.component';
 
 describe('DynamicFormQuestionComponent', () => {
   let component: DynamicFormQuestionComponent;

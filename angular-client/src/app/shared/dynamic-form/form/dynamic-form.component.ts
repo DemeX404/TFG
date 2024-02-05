@@ -1,13 +1,14 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {FormGroup, ReactiveFormsModule} from '@angular/forms';
-import {DynamicFormQuestionComponent} from '../dynamic-form-question/dynamic-form-question.component';
-import {QuestionBase} from '../question-base';
-import {QuestionControlService} from '../question-control.service';
+import {DynamicFormQuestionComponent} from '../dynamic-form-fields/dynamic-form-fields.component';
+import {QuestionBase} from '../model/question-base';
+import {QuestionControlService} from '../model/question-control.service';
 @Component({
   standalone: true,
-  selector: 'app-dynamic-form',
+  selector: 'dynamic-form',
   templateUrl: './dynamic-form.component.html',
+  styleUrl:'./dynamic-form.component.css',
   providers: [QuestionControlService],
   imports: [CommonModule, DynamicFormQuestionComponent, ReactiveFormsModule],
 })
@@ -17,6 +18,7 @@ export class DynamicFormComponent implements OnInit {
   payLoad = '';
   constructor(private qcs: QuestionControlService) {}
   ngOnInit() {
+    console.log(this.questions)
     this.form = this.qcs.toFormGroup(this.questions as QuestionBase<string>[]);
   }
   onSubmit() {

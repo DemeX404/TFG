@@ -2,12 +2,12 @@ import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { DynamicInput } from "../dynamic-form/fields/input/input.component";
-import { DynamicFormComponent } from '../../test/app-dynamic-form/app-dynamic-form.component';
+import { DynamicFormComponent } from '../dynamic-form/form/dynamic-form.component';
 
 
 import { Observable } from 'rxjs';
 import { QuestionService } from '../../test/question.service';
-import { QuestionBase } from '../../test/question-base';
+import { QuestionBase } from '../dynamic-form/model/question-base';
 
 @Component({
     selector: 'app-user-info',
@@ -20,8 +20,8 @@ import { QuestionBase } from '../../test/question-base';
 export class UserInfoComponent {
   questions$: Observable<QuestionBase<any>[]>;
   
-  constructor(service: QuestionService) {
-    this.questions$ = service.getQuestions();
+  constructor(service$: QuestionService) {
+    this.questions$ = service$.getQuestions();
   }
 
 

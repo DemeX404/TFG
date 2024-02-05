@@ -1,4 +1,4 @@
 <div class="input-container">
-    <input id="surname" type="text" formControlName="surname">
-    <label for="surname"> {{value}} </label>
+    <label  [attr.for]="values.key">{{ values.label}}</label>
+    <input  [id]="values.key" [type]="values.type">
 </div>
