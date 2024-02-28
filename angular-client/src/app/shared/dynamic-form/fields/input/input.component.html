@@ -1,4 +1,4 @@
-<div class="input-container">
-    <label  [attr.for]="values.key">{{ values.label}}</label>
-    <input  [id]="values.key" [type]="values.type">
+<div [formGroup]="form" class="input-container">
+    <input [formControlName]="values.key" #inputValue [value]="values.value" [id]="values.key" [type]="values.type" (change)="checkStatus(inputValue)">
+    <label [class.label_up]="flagLabel" [attr.for]="values.key">{{ values.label}}</label>
 </div>

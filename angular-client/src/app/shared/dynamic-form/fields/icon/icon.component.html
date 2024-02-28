@@ -1,0 +1,17 @@
+<div class="mixIcon">
+    <span *ngIf="!selectedImage" class="material-symbols-outlined account_circle">
+        account_circle
+        <span class="material-symbols-outlined edit_square" (click)="openFile()">
+            edit_square
+        </span>
+    </span>
+    <div *ngIf="selectedImage">
+        <span class="material-symbols-outlined account_circle">
+            <img [src]="selectedImage" alt="Selected Image" fill class="imageIcon">
+            <span class="material-symbols-outlined edit_square" (click)="openFile()">
+                edit_square
+            </span>
+        </span>
+    </div>
+    <input id="icon" class="icon" formControlName="icon" type="file" accept="image/*" (change)="loadImage($event)">
+</div>

@@ -1,9 +1,11 @@
 <div [formGroup]="form" class="form">
-  <!-- <label [attr.for]="question.key">{{ question.label }}</label> -->
   <div>
     @switch (question.controlType) {
+      @case ('imagepicture') {
+        <profile-picture></profile-picture>
+      }
       @case ('textbox') {
-        <dynamic-input [values]="question!"></dynamic-input>
+        <dynamic-input [form]="form" [values]="question!"></dynamic-input>
       } @case ('dropdown') {
         <select [id]="question.key" [formControlName]="question.key">
         @for (opt of question.options; track opt) {

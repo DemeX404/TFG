@@ -99,6 +99,6 @@ button{
 }
 
 button:active {
-    background-color: #68B684; /* Change this to the desired text color on hover */
+    background-color: #68B684;
     color: #1C1018;
   }

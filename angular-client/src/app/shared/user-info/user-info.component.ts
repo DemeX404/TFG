@@ -8,14 +8,22 @@ import { DynamicFormComponent } from '../dynamic-form/form/dynamic-form.componen
 import { Observable } from 'rxjs';
 import { QuestionService } from '../../test/question.service';
 import { QuestionBase } from '../dynamic-form/model/question-base';
+import { IconComponent } from "../dynamic-form/fields/icon/icon.component";
+import { DropdownComponent } from "../dynamic-form/fields/dropdown/dropdown.component";
 
 @Component({
     selector: 'app-user-info',
     standalone: true,
     templateUrl: './user-info.component.html',
     styleUrl: './user-info.component.css',
-    imports: [CommonModule, ReactiveFormsModule, DynamicInput, DynamicFormComponent],
-    providers: [QuestionService]
+    providers: [QuestionService],
+    imports: [
+      CommonModule,
+      ReactiveFormsModule,
+      DynamicInput,
+      DynamicFormComponent,
+      IconComponent,
+      DropdownComponent]
 })
 export class UserInfoComponent {
   questions$: Observable<QuestionBase<any>[]>;

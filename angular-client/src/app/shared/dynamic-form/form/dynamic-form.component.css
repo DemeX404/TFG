@@ -6,3 +6,28 @@ form {
     padding-left: 60px;
     position: relative;
 }
+
+button{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 6em;
+    cursor: pointer;
+    margin-left: auto;
+    margin-bottom: 1em;
+    padding: 5px 10px;
+    color: #1C1018;
+    border-color: #1C1018;
+    background-color: #C3F73A;
+    border: none;
+    border-radius: 20px;
+    border-top-right-radius: 30px;
+    border-bottom-right-radius: 30px;
+    border-top-left-radius: 30px;
+    border-bottom-left-radius: 30px;
+}
+
+button:active {
+    background-color: #68B684;
+    color: #1C1018;
+  }

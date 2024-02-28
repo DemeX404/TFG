@@ -1,0 +1,31 @@
+.mixIcon {
+    display: flex;
+    justify-content: space-evenly;
+
+    .account_circle {
+        position: relative;
+        font-size: 65px;
+    }
+
+    .edit_square {
+        background-color: white;
+        font-size: 25px;
+        position: absolute;
+        top: 35px;
+        left: 42px;
+        z-index: 1;
+        border-radius: 25%;
+        background-color: #fff;
+        cursor: pointer;
+    }
+
+    .icon {
+        display: none;
+    }
+}
+
+.imageIcon {
+    width: 65px !important;
+    height: 65px !important;
+    border-radius: 50%;
+}

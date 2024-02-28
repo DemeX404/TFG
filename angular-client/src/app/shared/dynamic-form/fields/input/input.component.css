@@ -3,6 +3,13 @@
     margin-bottom: 1.25em;
 }
 
+.label_up{
+    color: #424242;
+    font-size: .7em;
+    top: -25px;
+    pointer-events: none;
+}
+
 label {
     position:absolute;
     top: 10px;
@@ -26,7 +33,7 @@ input, label{
     height: 55px;
 }
 
-input:focus + label{
+input:focus + label {
     color: #424242;
     font-size: .7em;
     top: -25px;
