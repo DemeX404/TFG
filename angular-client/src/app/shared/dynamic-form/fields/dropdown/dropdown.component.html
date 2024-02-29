@@ -1,6 +1,7 @@
-<select>
-    <option>España (+34)</option>
-    <option>Mexico (+52)</option>
-    <option>Option 3</option>
-    <option>Option 4</option>
+<select (click)="loadOptions()">
+    @for (item of options; track item.name) {
+        <option>{{item.idd.root}}{{item.idd.suffixes[0]}} {{ item.name.common }} </option>
+      } @empty {
+        <option> There are no items. </option>
+      }
 </select>

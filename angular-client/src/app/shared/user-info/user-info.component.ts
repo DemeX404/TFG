@@ -45,6 +45,9 @@ export class UserInfoComponent {
   });
   selectedImage:any;
 
+  // arrayTest:Array<any> = ['test1', 'test2']
+  arrayTest = 'https://restcountries.com/v3.1/region/europe?fields=name,idd'
+
   ngOnInit(){
     this.formList = [
       {field: 'input', value: 'test1', id: 'test1'},

@@ -1,5 +1,25 @@
-select{
+select {
     border: 0;
-    border-bottom: 3px solid #C3F73A;;
+    border-bottom: 3px solid #C3F73A;
     padding: 5px 5px 5px 0;
+    outline: none;
+    width: 30%;
+}
+
+select:focus {
+    border: 0;
+    border-bottom: 3px solid #C3F73A;
+    padding: 5px 5px 5px 0;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #C3F73A;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-button{
+    background-color: #1882A8;
 }
