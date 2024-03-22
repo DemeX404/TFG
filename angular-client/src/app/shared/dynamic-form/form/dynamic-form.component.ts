@@ -13,15 +13,15 @@ import {QuestionControlService} from '../model/question-control.service';
   imports: [CommonModule, DynamicFormQuestionComponent, ReactiveFormsModule],
 })
 export class DynamicFormComponent implements OnInit {
-  @Input() questions: QuestionBase<string>[] | null = [];
+  @Input() data: QuestionBase<string>[] | null = [];
   form!: FormGroup;
   payLoad = '';
   constructor(private qcs: QuestionControlService) {}
   ngOnInit() {
-    this.form = this.qcs.toCreateForm(this.questions as QuestionBase<string>[]);
+    this.form = this.qcs.toCreateForm(this.data as QuestionBase<string>[]);
   }
   onSubmit() {
-    this.form = this.qcs.toCheckForm(this.questions as QuestionBase<string>[], this.form.value);
+    this.form = this.qcs.toCheckForm(this.data as QuestionBase<string>[], this.form.value);
     this.payLoad = JSON.stringify(this.form.value);
   }
 }

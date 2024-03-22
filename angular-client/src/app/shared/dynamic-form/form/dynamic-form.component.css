@@ -3,7 +3,6 @@ form {
     flex-direction: column;
     flex-wrap: wrap;
     align-content: center;
-    padding-left: 60px;
     position: relative;
 }
 
@@ -13,18 +12,13 @@ button{
     justify-content: space-between;
     width: 6em;
     cursor: pointer;
-    margin-left: auto;
-    margin-bottom: 1em;
+    margin: auto 3em 1em auto;
     padding: 5px 10px;
     color: #1C1018;
     border-color: #1C1018;
     background-color: #C3F73A;
     border: none;
     border-radius: 20px;
-    border-top-right-radius: 30px;
-    border-bottom-right-radius: 30px;
-    border-top-left-radius: 30px;
-    border-bottom-left-radius: 30px;
 }
 
 button:active {

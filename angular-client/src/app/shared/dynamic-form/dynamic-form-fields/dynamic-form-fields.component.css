@@ -3,6 +3,27 @@
     flex-direction: column;
     flex-wrap: wrap;
     align-content: center;
-    padding-left: 60px;
     position: relative;
+}
+
+.phone{
+    display: flex;
+    width: 65%;
+}
+
+.phone-select{
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.input-label{
+    width: 50% !important;
+}
+
+.errorMessage{
+    color: orangered;
+    font-size: 12px;
+    display: flex;
+    justify-content: center;
 }

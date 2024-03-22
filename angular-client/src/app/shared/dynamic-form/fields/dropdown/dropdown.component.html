@@ -1,7 +1,10 @@
-<select (click)="loadOptions()">
+<div class="dropdown">
+  <label>{{label}}</label>
+  <select>
     @for (item of options; track item.name) {
-        <option>{{item.idd.root}}{{item.idd.suffixes[0]}} {{ item.name.common }} </option>
-      } @empty {
-        <option> There are no items. </option>
-      }
-</select>
+    <option>{{item.idd.root}}{{item.idd.suffixes[0]}} {{ item.name.common }} </option>
+    } @empty {
+    <option> There are no items. </option>
+    }
+  </select>
+</div>

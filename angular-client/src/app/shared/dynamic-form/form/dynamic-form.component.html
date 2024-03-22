@@ -5,9 +5,9 @@
         arrow_forward
       </span>
     </button>
-    @for (question of questions; track question) {
+    @for (controllers of data; track controllers) {
     <div class="form-row">
-      <app-question [question]="question" [form]="form"></app-question>
+      <fields-form [question]="controllers" [form]="form"></fields-form>
     </div>
     }
   </form>

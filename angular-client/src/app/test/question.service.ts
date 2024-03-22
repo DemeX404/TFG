@@ -4,6 +4,7 @@ import { QuestionBase } from '../shared/dynamic-form/model/question-base';
 import { TextboxQuestion } from '../shared/dynamic-form/model/question-textbox';
 import { ImagePictureQuestion } from '../shared/dynamic-form/model/question-profile';
 import { of } from 'rxjs';
+import { PhoneQuestion } from '../shared/dynamic-form/model/question-phone';
 @Injectable()
 export class QuestionService {
   // TODO: get from a remote source of question metadata
@@ -52,9 +53,10 @@ export class QuestionService {
         value: '',
         order: 4
       }),
-      new TextboxQuestion({
+      new PhoneQuestion({
         key: 'phone',
         label: 'Phone',
+        labelExtra: 'País/Prefijo',
         type: 'tel',
         value: '',
         order: 5

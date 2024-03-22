@@ -1,20 +1,18 @@
 <div [formGroup]="form" class="form">
-  <div>
-    @switch (question.controlType) {
-      @case ('imagepicture') {
-        <profile-picture></profile-picture>
-      }
-      @case ('textbox') {
-        <dynamic-input [form]="form" [values]="question!"></dynamic-input>
-      } @case ('dropdown') {
-        <select [id]="question.key" [formControlName]="question.key">
-        @for (opt of question.options; track opt) {
-          <option [value]="opt.key">{{ opt.value }}</option>
-        }
-        </select>
-      }
-    }
+  @switch (question.controlType) {
+  @case ('imagepicture') {
+  <profile-picture></profile-picture>
+  }
+  @case ('textbox') {
+  <dynamic-input [form]="form" [values]="question!"></dynamic-input>
+  }
+  @case ('phone') {
+  <div class="phone">
+    <dropdown-form #dropdown [infOptions]="arrayTest" [label]="question.labelExtra" class="phone-select" (click)="getCountries()"></dropdown-form>
+    <dynamic-input #inputValue [form]="form" [values]="question!" class="input-label"
+      (keydown)="parsePhone($event)"></dynamic-input>
   </div>
+  }
+  }
   @if (!isValid) {<div class="errorMessage">{{ question.label }} is required</div>}
 </div>
-

@@ -3,13 +3,26 @@ select {
     border-bottom: 3px solid #C3F73A;
     padding: 5px 5px 5px 0;
     outline: none;
-    width: 30%;
+    width: 65%;
 }
 
 select:focus {
     border: 0;
     border-bottom: 3px solid #C3F73A;
     padding: 5px 5px 5px 0;
+}
+
+.dropdown{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+label{
+    color: #424242;
+    font-size: .7em;
+    top: -25px;
+    pointer-events: none;
 }
 
 ::-webkit-scrollbar {
