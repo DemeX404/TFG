@@ -8,7 +8,7 @@
   }
   @case ('phone') {
   <div class="phone">
-    <dropdown-form #dropdown [infOptions]="arrayTest" [label]="question.labelExtra" class="phone-select" (click)="getCountries()"></dropdown-form>
+    <dropdown-form #dropdown [infOptions]="countries$ | async" [label]="question.labelExtra" class="phone-select" (click)="getCountries()"></dropdown-form>
     <dynamic-input #inputValue [form]="form" [values]="question!" class="input-label"
       (keydown)="parsePhone($event)"></dynamic-input>
   </div>

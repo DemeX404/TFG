@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { ChangeDetectorRef, Component, Input, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from "@angular/common/http";
 
@@ -11,17 +11,9 @@ import { HttpClient } from "@angular/common/http";
 })
 export class DropdownComponent {
 
-  constructor(private http: HttpClient) { }
-
-  // @Input() options: Array<any>[] = [];
   @Input() infOptions: any;
   @Input() label?: string;
 
   options: any
-
-  ngOnInit() {
-
-   
-  }
 
 }

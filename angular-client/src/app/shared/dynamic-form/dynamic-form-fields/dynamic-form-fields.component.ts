@@ -1,4 +1,4 @@
-import { Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { QuestionBase } from '../model/question-base';
@@ -19,13 +19,11 @@ export class DynamicFormQuestionComponent {
   @Input() question!: QuestionBase<string>;
   @Input() form!: FormGroup;
 
-  @ViewChild('dropdown') dropdown!:ElementRef;
 
-  arrayTest!:any;
+  countries$!: Observable<any[]>;
 
-  constructor(private myService:InfoCountriesService){}
+  constructor(private myService: InfoCountriesService) { }
 
-  ngOnInit(){}
 
   get isValid() {
     return this.form.controls[this.question.key].valid;
@@ -44,14 +42,11 @@ export class DynamicFormQuestionComponent {
   }
 
   getCountries():void{
-    // this.arrayTest =  this.myService.getCountries('https://restcountries.com/v3.1/region/europe?fields=name,idd');
-    this.myService.getCountries('https://restcountries.com/v3.1/region/europe?fields=name,idd').subscribe({
-      next: (data:any) => {
-        this.arrayTest = data;
-      },
-      error: (error:any) => console.error(error)
-    });
-    
-    console.log(this.dropdown.nativeElement)
+    if(!this.countries$){
+      this.countries$ = this.myService.getCountries()
+    }
+
   }
+
+
 }

@@ -1,40 +1,19 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
-import { Observable } from 'rxjs';
+import { Observable, Subject, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class InfoCountriesService {
+  URL: string = 'https://restcountries.com/v3.1/region/europe?fields=name,idd';
 
   constructor(private http: HttpClient) {}
 
-  // getCountries(url:string){
-  //   let options:any;
-  //   this.http.get<any>(url).subscribe({
-  //     next: (result) => {
-  //       options = result
-  //       options.sort((a: any, b: any) => {
-  //         const nameA = a.name.common.toUpperCase(); // ignore upper and lowercase
-  //         const nameB = b.name.common.toUpperCase(); // ignore upper and lowercase
-  //         if (nameA < nameB) {
-  //           return -1;
-  //         }
-  //         if (nameA > nameB) {
-  //           return 1;
-  //         }
 
-  //         // names must be equal
-  //         return 0;
-  //       })
-  //     },
-  //     error: (error) => console.log("Error: " + error),
-  //     complete: () => {}
-  //   })
-  // }
-  getCountries(url:string):Observable<any>{
+  getCountries():Observable<any>{
     return new Observable((observer) => {
-      this.http.get<any>(url).subscribe({
+      this.http.get<any>(this.URL).subscribe({
         next: (result) => {
           const options = result;
           const sortedOptions = options.sort((a: any, b: any) => {
