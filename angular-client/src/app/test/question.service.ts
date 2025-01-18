@@ -23,6 +23,7 @@ export class QuestionService {
       // }),
       new ImagePictureQuestion({
         key: 'profilePicture',
+        value: '',
         order: 0
       }),
       new TextboxQuestion({
